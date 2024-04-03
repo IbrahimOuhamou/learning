@@ -1,0 +1,85 @@
+     1                                 %line 1+1 files.asm
+     2                                 
+     3                                 
+     4                                 [section .data]
+     5                                 
+     6                                 SYS_open equ 2
+     7                                 SYS_create equ 85
+     8                                 SYS_read equ 0
+     9                                 SYS_write equ 1
+    10                                 SYS_lseek equ 8
+    11                                 SYS_close equ 3
+    12                                 
+    13                                 stdin equ 0
+    14                                 stdout equ 1
+    15                                 stderr equ 2
+    16                                 
+    17                                 O_RDONLY equ 000000
+    18                                 O_WRONLY equ 000001
+    19                                 O_RDWR equ 000002
+    20                                 
+    21                                 O_CREAT equ 0x40
+    22                                 O_TRUNC equ 0x200
+    23                                 O_APPEND equ 0x400
+    24                                 
+    25                                 S_IRUSR equ 00400
+    26                                 S_IWUSR equ 00200
+    27                                 S_IXUSR equ 00100
+    28                                 
+    29 00000000 696E20746865206E61-    bismi_allah_str db "in the name of Allah", 0
+    30 00000000 6D65206F6620416C6C-
+    31 00000000 616800             
+    32 00000015 6269736D695F616C6C-    bismi_allah_file_name db "bismi_allah.txt", 0
+    33 00000015 61682E74787400     
+    34 00000025 00                     bismi_allah_fd db 0
+    35                                 
+    36                                 [section .bss]
+    37 00000000 <gap>                  bismi_allah_buffer resb 128
+    38                                 
+    39                                 [section .text]
+    40                                 [global _start]
+    41                                 _start:
+    42 00000000 48C7C055000000          mov rax, SYS_create
+    43 00000007 48C7C7[00000000]        mov rdi, bismi_allah_file_name
+    44 0000000E 48C7C682010000          mov rsi, O_RDWR | S_IRUSR | S_IWUSR
+    45 00000015 0F05                    syscall
+    46                                 
+    47 00000017 880425[00000000]        mov byte [bismi_allah_fd], al
+    48                                 
+    49 0000001E 48C7C001000000          mov rax, SYS_write
+    50 00000025 480FB63C25[00000000]      movzx rdi, byte [bismi_allah_fd]
+    51 0000002E 48C7C6[00000000]        mov rsi, bismi_allah_str
+    52 00000035 48C7C215000000          mov rdx, 21
+    53 0000003C 0F05                    syscall
+    54                                 
+    55 0000003E 48C7C003000000          mov rax, SYS_close
+    56 00000045 480FB63C25[00000000]      movzx rdi, byte [bismi_allah_fd]
+    57 0000004E 0F05                    syscall
+    58                                 
+    59 00000050 48C7C002000000          mov rax, SYS_open
+    60 00000057 48C7C7[00000000]        mov rdi, bismi_allah_file_name
+    61 0000005E 48C7C600000000          mov rsi, O_RDONLY
+    62 00000065 0F05                    syscall
+    63                                 
+    64 00000067 48C7C000000000          mov rax, SYS_read
+    65 0000006E 480FB63C25[00000000]      movzx rdi, byte [bismi_allah_fd]
+    66 00000077 48C7C6[00000000]        mov rsi, bismi_allah_buffer
+    67 0000007E 48C7C280000000          mov rdx, 128
+    68 00000085 0F05                    syscall
+    69                                 
+    70 00000087 48C7C001000000          mov rax, SYS_write
+    71 0000008E 48C7C701000000          mov rdi, stdout
+    72 00000095 48C7C6[00000000]        mov rsi, bismi_allah_buffer
+    73 0000009C 48C7C215000000          mov rdx, 21
+    74 000000A3 0F05                    syscall
+    75                                 
+    76                                 
+    77                                 
+    78                                 
+    79                                 
+    80                                 
+    81                                 
+    82 000000A5 48C7C03C000000          mov rax, 60
+    83 000000AC 48C7C700000000          mov rdi, 0
+    84 000000B3 0F05                    syscall
+    85                                 

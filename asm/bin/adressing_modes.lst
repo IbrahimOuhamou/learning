@@ -1,0 +1,44 @@
+     1                                 %line 1+1 adressing_modes.asm
+     2                                 
+     3                                 
+     4                                 [section .data]
+     5 00000000 0B000000                bismi_allah_var dd 11
+     6 00000004 0C0000000D0000000E-     bismi_allah_arr dd 12, 13, 14, 15, 16, 10, 10
+     7 00000004 0000000F0000001000-
+     8 00000004 00000A0000000A0000-
+     9 00000004 00                 
+    10 00000020 00000000                array_sum dd 0
+    11                                 
+    12                                 [section .text]
+    13                                 [global _start]
+    14                                 _start:
+    15                                 
+    16 00000000 B8[00000000]            mov eax, bismi_allah_var
+    17 00000005 8B0425[00000000]        mov eax, dword [bismi_allah_var]
+    18                                 
+    19 0000000C 48C7C302000000          mov rbx, 2
+    20                                 
+    21 00000013 8B0425[00000000]        mov eax, dword [bismi_allah_arr]
+    22 0000001A 8B0425[04000000]        mov eax, dword [bismi_allah_arr + 4]
+    23 00000021 8B049D[00000000]        mov eax, dword [bismi_allah_arr + rbx * 4]
+    24                                 
+    25                                 
+    26                                 
+    27 00000028 48C7C100000000          mov rcx, 0
+    28 0000002F 48C7C206000000          mov rdx, 6
+    29                                 
+    30 00000036 B800000000              mov eax, 0
+    31                                 
+    32                                 loop_start:
+    33 0000003B 03048D[00000000]        add eax, dword [bismi_allah_arr + rcx * 4]
+    34 00000042 48FFC1                  inc rcx
+    35 00000045 4839D1                  cmp rcx, rdx
+    36 00000048 76EF                    jbe loop_start
+    37                                 
+    38 0000004A 890425[00000000]        mov dword [array_sum], eax
+    39                                 
+    40                                 end:
+    41 00000051 48C7C03C000000          mov rax, 60
+    42 00000058 48C7C700000000          mov rdi, 0
+    43 0000005F 0F05                    syscall
+    44                                 

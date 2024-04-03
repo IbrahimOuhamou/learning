@@ -1,0 +1,9 @@
+#bash
+
+echo "yasm -Worphan-labels -g dwarf2 -f elf64 $1.asm -l  bin/$1.lst -o bin/$1"
+yasm -Worphan-labels -g dwarf2 -f elf64 $1.asm -l bin/$1.lst -o bin/$1.o
+echo "ld -g -o bin/$1 bin/$1.o"
+ld -g -o bin/$1 bin/$1.o
+echo "rm bin/$1.o"
+rm bin/$1.o
+

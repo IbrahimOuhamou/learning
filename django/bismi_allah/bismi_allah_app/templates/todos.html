@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>bismi Allah ToDos</h1>
+    <ul>
+        {% for todo in todos %}
+        <li>
+            <b>{{ todo.title }}:</b> {% if todo.completed %}Completed alhamdo li Allah {% else %}Not Completed wa Alhamdo li Allah{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+

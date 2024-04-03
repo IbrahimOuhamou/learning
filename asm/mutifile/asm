@@ -1,0 +1,5 @@
+#bash
+
+echo "yasm -g dwarf2 -f elf64 $1.asm -l bin/$1.lst -o bin/$1.o"
+yasm -g dwarf2 -f elf64 $1.asm -l bin/$1.lst -o bin/$1.o
+

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<!--in the name of Allah-->
+<html lang="en">
+    <head>
+        <title>{% block title %} in the name of Allah {% endblock %}</title>
+        <meta charset="UTF-8">
+        <link href="bismi_allah.css" rel="stylesheet">
+    </head>
+    <body>
+        <header style="background-color: grey; font-size: large; display:flex; justify-content:space-evenly;">{% block header %} <b>la ilaha illa Allah mohammed rassoul Allah</b> <b>astaghfiro Allah</b> {% endblock %}</header>
+        {% block content %}
+            <p>in the name of Allah</p>
+        {% endblock %}
+    </body>
+</html>

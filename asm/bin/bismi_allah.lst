@@ -1,0 +1,16 @@
+     1                                 %line 1+1 bismi_allah.asm
+     2                                 
+     3                                 
+     4                                 [section .data]
+     5 00000000 64                      bismi_allah_var_1 db 100
+     6                                 
+     7                                 [section .text]
+     8                                 [global _start]
+     9                                 _start:
+    10 00000000 480FB60425[00000000]      movzx rax, byte [bismi_allah_var_1]
+    11                                 
+    12 00000009 48C7C03C000000          mov rax, 60
+    13 00000010 48C7C700000000          mov rdi, 0
+    14 00000017 0F05                    syscall
+    15                                 
+    16                                 
