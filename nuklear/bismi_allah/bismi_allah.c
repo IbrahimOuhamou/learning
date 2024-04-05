@@ -14,8 +14,8 @@
 #define NK_INCLUDE_DEFAULT_FONT
 #define NK_IMPLEMENTATION
 #define NK_SDL_RENDERER_IMPLEMENTATION
-#include "libraries/Nuklear/nuklear.h"
-#include "libraries/Nuklear/demo/sdl_renderer/nuklear_sdl_renderer.h"
+#include "../Nuklear/nuklear.h"
+#include "../Nuklear/demo/sdl_renderer/nuklear_sdl_renderer.h"
 
 int main()
 {
@@ -81,7 +81,6 @@ int main()
             {
                 printf("[nk] pressed 'bismi Allah' button\n");
             }
-            
         }nk_end(ctx);
 
         if(nk_begin(ctx, "in the name of Allah2", nk_rect(0, 0, 800, 600), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE))
@@ -99,12 +98,12 @@ int main()
             nk_layout_space_push(ctx, bismi_allah_rect);
             if(nk_group_begin(ctx, "in the name of Allah group1", NK_WINDOW_MOVABLE|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_BORDER|NK_WINDOW_TITLE))
             {
-                nk_layout_row_dynamic(ctx, 40, 1);
+                nk_layout_row_dynamic(ctx, 0, 1);
                 if(nk_button_label(ctx, "bismi Allah 1"))
                 {
                     printf("[nk] pressed 'bismi Allah 1' button\n");
                 }
-                nk_layout_row_dynamic(ctx, 40, 1);
+
                 if(nk_button_label(ctx, "bismi Allah 2"))
                 {
                     printf("[nk] pressed 'bismi Allah 2' button\n");
@@ -112,12 +111,14 @@ int main()
             }
             nk_group_end(ctx);
 
+            /*
             struct nk_input* input = &ctx->input;
             if(nk_input_is_mouse_hovering_rect(input, nk_layout_space_rect_to_screen(ctx, bismi_allah_rect))  && nk_input_is_mouse_down(input, NK_BUTTON_LEFT))
             {
                 bismi_allah_rect.x += input->mouse.delta.x;
                 bismi_allah_rect.y += input->mouse.delta.y;
             }
+            */
             /*
             if (nk_input_mouse_clicked(input, NK_BUTTON_LEFT, nk_layout_space_bounds(ctx)))
             {
@@ -130,14 +131,69 @@ int main()
             nk_layout_space_end(ctx);
         }nk_end(ctx);
 
+        //struct nk_window *bismi_allah_window = nk_window_find(ctx, "in the name of Allah2");
+
         int screen_width, screen_height;
         SDL_GetWindowSize(window, &screen_width, &screen_height);
-        if(nk_begin(ctx, "in the name of Allah 3", nk_rect(10, 10, screen_width, 100), NK_WINDOW_MOVABLE | NK_WINDOW_TITLE))
+        if(nk_begin(ctx, "in the name of Allah 3", nk_rect(10, 10, screen_width, 100), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
         {
             nk_layout_row_dynamic(ctx, 25, 1);
             //nk_checkbox_text(ctx, "in the name of Allah", 100, &check);
             nk_checkbox_label(ctx, "in the name of Allah", &check);
+            nk_layout_row_dynamic(ctx, 25, 1);
+            if(nk_button_label(ctx, "بسم الله الرحمن الرحيم"))
+            {
+                nk_window_set_position(ctx, "in the name of Allah 3", nk_vec2(0, 0));
+            }
+
+            nk_layout_row_dynamic(ctx, 25, 1);
+            if(nk_button_label(ctx, "la ilaha illa Allah mohammed rassoul Allah"))
+            {
+                nk_window_collapse(ctx, "in the name of Allah 3", nk_false);
+            }
         }nk_end(ctx);
+
+        if(nk_begin(ctx, "bismi allah rows", nk_rect(100, 100, 300, 300), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
+        {
+            nk_layout_row_dynamic(ctx, 30, 1);
+            nk_button_label(ctx, "la ilaha illa Allah 'dynamic'");
+
+            nk_layout_row_static(ctx, 30, 200, 1);
+            nk_button_label(ctx, "la ilaha illa Allah 'static'");
+            nk_button_label(ctx, "la ilaha illa Allah");
+
+            nk_layout_row_begin(ctx, NK_STATIC, 25, 2);
+
+            nk_layout_row_push(ctx, 250);
+            nk_button_label(ctx, "bismi_allah 'begin' static");
+            nk_layout_row_push(ctx, 100);
+            nk_button_label(ctx, "bismi_allah");
+
+            nk_layout_row_begin(ctx, NK_DYNAMIC, 0, 2);
+            
+            nk_layout_row_push(ctx, 0.80f);
+            nk_button_label(ctx, "bismi_allah 'begin' dynamic");
+            nk_layout_row_push(ctx, 0.20f);
+            nk_button_label(ctx, "bismi_allah");
+
+            nk_layout_row_end(ctx);
+
+            float ratio[] = {60, 40};
+            nk_layout_row(ctx, NK_STATIC, 0, 1, ratio);
+            nk_button_label(ctx, "bismi_allah");
+            nk_button_label(ctx, "bismi_allah");
+            nk_button_label(ctx, "bismi_allah");
+            nk_button_label(ctx, "bismi_allah");
+
+            ratio[0] = 0.75;
+            ratio[1] = 0.25;
+            nk_layout_row(ctx, NK_DYNAMIC, 0, 2, ratio);
+            nk_button_label(ctx, "bismi_allah");
+            nk_button_label(ctx, "bismi_allah");
+            nk_button_label(ctx, "bismi_allah");
+            nk_button_label(ctx, "bismi_allah");
+        }
+        nk_end(ctx);
 
         SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
         SDL_RenderClear(renderer);
