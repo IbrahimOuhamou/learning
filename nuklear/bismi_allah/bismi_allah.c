@@ -192,6 +192,54 @@ int main()
             nk_button_label(ctx, "bismi_allah");
             nk_button_label(ctx, "bismi_allah");
             nk_button_label(ctx, "bismi_allah");
+
+            nk_layout_row_template_begin(ctx, 0);
+
+            nk_layout_row_template_push_dynamic(ctx);
+            nk_layout_row_template_push_variable(ctx, 100);
+            nk_layout_row_template_push_static(ctx, 100);
+            nk_layout_row_template_end(ctx);
+
+            nk_button_label(ctx, "allah akbar");
+            nk_button_label(ctx, "allah akbar");
+            nk_button_label(ctx, "allah akbar");
+            nk_button_label(ctx, "allah akbar");
+            nk_button_label(ctx, "allah akbar");
+            nk_button_label(ctx, "allah akbar");
+
+        }
+        nk_end(ctx);
+
+        if(nk_begin(ctx, "bismi allah space", nk_rect(100, 100, 300, 300), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
+        {
+            nk_layout_space_begin(ctx, NK_STATIC, 0, 20);
+            nk_layout_space_push(ctx, nk_rect(0, 0, 200, 20));
+            if(nk_button_label(ctx, "Allah is the greatest"))
+            {
+                printf("Allah is the greatest\n");
+            }
+            nk_layout_space_push(ctx, nk_rect(0, 20, 220, 20));
+            if(nk_button_label(ctx, "la ilaha illa Allah"))
+            {
+                struct nk_rect rect = nk_layout_space_bounds(ctx);
+                printf("alhamdo li Allah rect(%f, %f, %f, %f)\n", rect.x, rect.y, rect.h, rect.w);
+            }
+            nk_layout_space_end(ctx);
+
+            nk_layout_space_begin(ctx, NK_DYNAMIC, 0, 10);
+            nk_layout_space_push(ctx, nk_rect(0, 1, 1, 1));
+            if(nk_button_label(ctx, "Allah akbar"))
+            {
+                struct nk_rect rect = nk_layout_space_bounds(ctx);
+                printf("alhamdo li Allah rect(%f, %f, %f, %f)\n", rect.x, rect.y, rect.h, rect.w);
+            }
+            nk_layout_space_push(ctx, nk_rect(0, 2, 0.8, 1.5));
+            if(nk_button_label(ctx, "Allah akbar"))
+            {
+                struct nk_rect rect = nk_layout_space_bounds(ctx);
+                printf("alhamdo li Allah rect(%f, %f, %f, %f)\n", rect.x, rect.y, rect.h, rect.w);
+            }
+            nk_layout_space_end(ctx);
         }
         nk_end(ctx);
 
