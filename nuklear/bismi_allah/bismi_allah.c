@@ -243,6 +243,57 @@ int main()
         }
         nk_end(ctx);
 
+        if(nk_begin(ctx, "bismi_allah text/label", nk_rect(0, 0, 300, 100), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
+        {
+            nk_layout_row_dynamic(ctx, 0, 1);
+            //text
+            nk_text(ctx, "bismi Allah text", 16, NK_TEXT_LEFT);
+            nk_text(ctx, "bismi Allah text", 16, NK_TEXT_CENTERED);
+            nk_text(ctx, "bismi Allah text", 16, NK_TEXT_RIGHT);
+
+            struct nk_color bismi_allah_color_red = {255, 0, 0, 255};
+            struct nk_color bismi_allah_color_yellow = {255, 255, 0, 255};
+            struct nk_color bismi_allah_color_blue = {0, 0, 255, 255};
+            nk_text_colored(ctx, "bismi Allah text", 16, NK_TEXT_LEFT, bismi_allah_color_yellow);
+            nk_text_colored(ctx, "bismi Allah text", 16, NK_TEXT_CENTERED, bismi_allah_color_red);
+            nk_text_colored(ctx, "bismi Allah text", 16, NK_TEXT_RIGHT, bismi_allah_color_blue);
+
+            nk_text_wrap(ctx, "bismi Allah text", 16);
+            nk_text_wrap_colored(ctx, "bismi Allah text", 16, bismi_allah_color_blue);
+
+            //labels
+            nk_label(ctx, "bismi Allah label", NK_TEXT_LEFT);
+            nk_label(ctx, "bismi Allah label", NK_TEXT_CENTERED);
+            nk_label(ctx, "bismi Allah label", NK_TEXT_RIGHT);
+
+            nk_label_colored(ctx, "bismi Allah label", NK_TEXT_LEFT, bismi_allah_color_yellow);
+            nk_label_colored(ctx, "bismi Allah label", NK_TEXT_CENTERED, bismi_allah_color_red);
+            nk_label_colored(ctx, "bismi Allah label", NK_TEXT_RIGHT, bismi_allah_color_blue);
+
+            nk_label_wrap(ctx, "bismi Allah label");
+            nk_label_colored_wrap(ctx, "bismi Allah label", bismi_allah_color_blue);
+
+            nk_labelf(ctx, NK_TEXT_CENTERED, "bismi_allah la ilaha illa Allah %d", 12);
+
+            //value
+            nk_value_bool(ctx, "bismi Allah", 0);
+            nk_value_int(ctx, "bismi Allah", 0);
+            nk_value_uint(ctx, "bismi Allah", 0);
+            nk_value_float(ctx, "bismi Allah", 0);
+            nk_value_color_byte(ctx, "bismi Allah", bismi_allah_color_yellow);
+            nk_value_color_float(ctx, "bismi Allah", bismi_allah_color_yellow);
+            nk_value_color_hex(ctx, "bismi Allah", bismi_allah_color_yellow);
+        }
+        nk_end(ctx);
+
+        /*
+        if(nk_begin(ctx, "bismi_allah menu", nk_rect(0, 0, 300, 100), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
+        {
+
+        }
+        nk_end(ctx);
+        */
+
         SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
         SDL_RenderClear(renderer);
 
