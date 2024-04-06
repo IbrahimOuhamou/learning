@@ -286,10 +286,45 @@ int main()
         }
         nk_end(ctx);
 
+        if(nk_begin(ctx, "bismi_allah button", nk_rect(0, 0, 300, 100), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
+        {
+            nk_layout_row_dynamic(ctx, 0, 1);
+            struct nk_color bismi_allah_color = {255, 0, 255, 255};
+
+            nk_button_text(ctx, "bismi Allah text", 16);
+            nk_button_label(ctx, "bismi Allah label");
+            nk_button_color(ctx, bismi_allah_color);
+            nk_button_symbol(ctx, NK_SYMBOL_RECT_OUTLINE);
+            nk_button_symbol_label(ctx, NK_SYMBOL_CIRCLE_SOLID, "bismi Allah symbol label", NK_TEXT_CENTERED);
+
+            /*
+            struct nk_style_button bismi_allah_style_button;
+            bismi_allah_style_button.normal.type = NK_STYLE_ITEM_COLOR;
+            bismi_allah_style_button.normal.data.color = bismi_allah_color;
+            bismi_allah_style_button.hover.type = NK_STYLE_ITEM_COLOR;
+            bismi_allah_style_button.hover.data.color = bismi_allah_color;
+            bismi_allah_style_button.active.type = NK_STYLE_ITEM_COLOR;
+            bismi_allah_style_button.active.data.color = bismi_allah_color;
+            nk_button_label_styled(ctx, &bismi_allah_style_button, "bismi Allah styled button");
+            */
+
+            nk_button_set_behavior(ctx, NK_BUTTON_REPEATER);
+            if(nk_button_label(ctx, "bismi Allah repeater")) puts("la ilaha illa Allah mohammed rassoul Allah");
+            nk_button_set_behavior(ctx, NK_BUTTON_DEFAULT);
+
+        }
+        nk_end(ctx);
+
+        if(nk_begin(ctx, "bismi_allah checkbox", nk_rect(0, 0, 300, 100), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
+        {
+            nk_layout_row_dynamic(ctx, 0, 1);
+        }
+        nk_end(ctx);
+
         /*
         if(nk_begin(ctx, "bismi_allah menu", nk_rect(0, 0, 300, 100), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
         {
-
+            nk_layout_row_dynamic(ctx, 0, 1);
         }
         nk_end(ctx);
         */
