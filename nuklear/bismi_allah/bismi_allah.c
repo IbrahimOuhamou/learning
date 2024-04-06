@@ -318,9 +318,46 @@ int main()
         if(nk_begin(ctx, "bismi_allah checkbox", nk_rect(0, 0, 300, 100), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
         {
             nk_layout_row_dynamic(ctx, 0, 1);
+
+            static int bismi_allah_bool = nk_true;
+            nk_check_label(ctx, "bismi Allah", bismi_allah_bool);
+            nk_check_text_align(ctx, "bismi Allah align", 17, nk_false, NK_WIDGET_ALIGN_LEFT, NK_TEXT_RIGHT);
+            nk_check_text_align(ctx, "bismi Allah align", 17, nk_false, NK_WIDGET_ALIGN_CENTERED, NK_TEXT_RIGHT);
+            nk_check_text_align(ctx, "bismi Allah align", 17, nk_false, NK_WIDGET_ALIGN_RIGHT, NK_TEXT_RIGHT);
+            nk_check_text_align(ctx, "bismi Allah align", 17, nk_false, NK_WIDGET_ALIGN_LEFT, NK_TEXT_LEFT);
+            nk_check_text_align(ctx, "bismi Allah align", 17, nk_false, NK_WIDGET_ALIGN_CENTERED, NK_TEXT_LEFT);
+            nk_check_text_align(ctx, "bismi Allah align", 17, nk_false, NK_WIDGET_ALIGN_RIGHT, NK_TEXT_LEFT);
+            nk_check_flags_label(ctx, "bismi Allah check flags", 1, 2);
+
+            nk_checkbox_label(ctx, "bismi Allah", &bismi_allah_bool);
+            nk_checkbox_label_align(ctx, "bismi Allah", &bismi_allah_bool, NK_WIDGET_ALIGN_RIGHT, NK_TEXT_LEFT);
+
+            nk_label(ctx, "bismi Allah flag", NK_TEXT_CENTERED);
+            static int flag = 0;
+            nk_checkbox_flags_label(ctx, "bismi Allah flags", &flag, 1);
+            nk_checkbox_flags_label(ctx, "bismi Allah flags", &flag, 2);
+            nk_checkbox_flags_label(ctx, "bismi Allah flags", &flag, 4);
+            nk_checkbox_flags_label(ctx, "bismi Allah flags", &flag, 8);
+            nk_value_int(ctx, "bismi Allah flag", flag);
         }
         nk_end(ctx);
 
+        if(nk_begin(ctx, "bismi_allah radio button", nk_rect(0, 0, 300, 100), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
+        {
+            nk_layout_row_dynamic(ctx, 0, 1);
+
+            static int bismi_allah_bool = nk_true;
+            nk_radio_label(ctx, "bismi Allah", &bismi_allah_bool);
+            nk_radio_label(ctx, "bismi Allah", &bismi_allah_bool);
+        }
+        nk_end(ctx);
+
+        if(nk_begin(ctx, "bismi_allah menu", nk_rect(0, 0, 300, 100), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
+        {
+            nk_layout_row_dynamic(ctx, 0, 1);
+        }
+        nk_end(ctx);
+        
         /*
         if(nk_begin(ctx, "bismi_allah menu", nk_rect(0, 0, 300, 100), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
         {
