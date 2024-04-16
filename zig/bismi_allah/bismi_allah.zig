@@ -31,4 +31,22 @@ pub fn main() !void {
     bismi_allah_optional = "bismi_allah";
     //assert(bismi_allah_optional != null);
     print("\nbismi_allah_optional\ntype: {}\nvalue: {?s}\n", .{ @TypeOf(bismi_allah_optional), bismi_allah_optional });
+
+    //loop
+    for (3..10) |i| {
+        print("i == {}\n", .{i});
+    }
+
+    //array
+    var bismi_allah_arr = [3]u32{ 0, 7, 14 };
+    for (bismi_allah_arr, 0..) |i, j| {
+        print("bismi_allah_arr[{}] == {}\n", .{ j, i });
+    }
+}
+
+test "bismi_allah" {
+    for (0..10) |i| {
+        _ = i;
+        std.debug.print("in the name of Allah\n", .{});
+    }
 }
