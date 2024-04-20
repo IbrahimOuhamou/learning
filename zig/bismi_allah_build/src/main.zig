@@ -28,6 +28,7 @@ pub inline fn bismi_allah_add_inline(x: u8) u8 {
 pub fn main() !void {
     // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
     std.debug.print("بسم الله الرحمن الرحيم\n", .{});
+    defer std.debug.print("بسم الله الرحمن الرحيم\n", .{});
 
     var bismi_allah_arr = [_]u3{12, -12, 99};
     bismi_allah_arr[0] = 13;
