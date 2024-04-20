@@ -1,25 +1,46 @@
 //بسم الله الرحمن الرحيم
 const std = @import("std");
+const print = std.debug.print;
+
+var bismi_allah_ctx = false;
+
+const BismiAllah = struct {
+    var bismi_allah: u32 = 12;
+    pub fn bismi_allah_fn() u32 {
+        return 12;
+    }
+};
+
+pub fn bismi_allah_fn(bismi_allah: BismiAllah) @TypeOf(BismiAllah.bismi_allah) {
+    return bismi_allah.bismi_allah;
+}
+
+//bismi_allah_init()
+pub fn bismi_allah_rarely_called() noreturn {
+    @setCold(true);
+    bismi_allah_ctx = true;
+}
+
+pub inline fn bismi_allah_add_inline(x: u8) u8 {
+    return x + 1;
+}
 
 pub fn main() !void {
     // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
     std.debug.print("بسم الله الرحمن الرحيم\n", .{});
 
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
+    var bismi_allah_arr = [_]u3{12, -12, 99};
+    bismi_allah_arr[0] = 13;
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
-
-    try bw.flush(); // don't forget to flush!
+    print("bismi_allah {}\n", .{BismiAllah.bismi_allah_fn()});
 }
 
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
+test "bismi_allah_init" {
+    try bismi_allah_rarely_called();
+    try std.testing.expect(bismi_allah_ctx == true);
+}
+
+test "bismi_allah_add_one" {
+    try std.testing.expect(33 == bismi_allah_add_inline(32));
+    try std.testing.expect(0 < bismi_allah_add_inline(200));
 }
