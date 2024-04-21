@@ -50,3 +50,12 @@ test "bismi_allah" {
         std.debug.print("in the name of Allah\n", .{});
     }
 }
+
+test "bismi_allah_for_loop" {
+    //comptime var i = 0;
+    const bismi_allah_arr = [_]i8{ 10, -12, 12, 13 };
+    const bismi_allah_first_neg: ?usize = for (bismi_allah_arr, 0..) |value, i| {
+        if (value < 0) break i;
+    } else null;
+    if (1 == bismi_allah_first_neg) std.debug.print("alhamdo li Allah test passed\n", .{});
+}
