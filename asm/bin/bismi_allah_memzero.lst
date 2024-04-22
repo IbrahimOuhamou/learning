@@ -1,0 +1,35 @@
+     1                                 %line 1+1 bismi_allah_memzero.asm
+     2                                 
+     3                                 
+     4                                 
+     5                                 [section .bss]
+     6 00000000 <gap>                  bismi_allah_arr resd 10
+     7                                 
+     8                                 [section .text]
+     9                                 [global _start]
+    10                                 _start:
+    11                                 
+    12 00000000 48C7C7[00000000]        mov rdi, bismi_allah_arr
+    13 00000007 48C7C60A000000          mov rsi, 10
+    14 0000000E E80B000000              call bismi_allah_memzero
+    15                                 
+    16 00000013 48C7C700000000          mov rdi, 0
+    17 0000001A 48C7C03C000000          mov rax, 60
+    18 00000021 0F05                    syscall
+    19                                 
+    20                                 bismi_allah_memzero:
+    21                                 
+    22 00000023 48C7C100000000          mov rcx, 0
+    23 0000002A EB08                    jmp bismi_allah_memzero_loop_test
+    24                                  bismi_allah_memzero_middle:
+    25                                 
+    26 0000002C C3                      ret
+    27                                 
+    28                                  bismi_allah_memzero_loop_start:
+    29 0000002D C7048F00000000          mov dword [rdi+rcx*4], 0x0
+    30 00000034 FFC1                    inc ecx
+    31                                  bismi_allah_memzero_loop_test:
+    32 00000036 4839F1                  cmp rcx, rsi
+    33 00000039 72F0                    jb bismi_allah_memzero_loop_start
+    34 0000003B EBED                    jmp bismi_allah_memzero_middle
+    35                                 
