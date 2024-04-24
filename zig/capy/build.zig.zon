@@ -1,0 +1,22 @@
+//بسم الله الرحمن الرحيم
+//la ilaha illa Allah mohammed rassoul Allah
+.{
+    .name = "bismi_allah",
+    .version = "0.0.1",
+    .dependencies = .{
+        .capy = .{
+        // Update the following URL whenever you want to upgrade capy !
+        .url = "https://github.com/capy-ui/capy/archive/60fa439feda483611a4bf7767bab108e00a7a3d2.tar.gz",
+        .hash = "12201751d2094cde9630bc080e6ce1d8982ff03bdd30a3103abd21321a8361a7e39d",
+        //If you want to use the most current version of the master branch, use the url below.
+        //Delete the '.hash = "...",'. Run 'zig build'. It will fail, providing you with the up-to-date hash.
+        },
+    },
+    .paths = .{
+        "LICENSE",
+        "README.md",
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
