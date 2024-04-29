@@ -10,6 +10,7 @@ pub fn main() !void {
     var allocator = arena.allocator();
 
     const bismi_allah_arr: []u8 = try allocator.alloc(u8, 12);
+    defer allocator.free(bismi_allah_arr);
     for (0..bismi_allah_arr.len) |i| {
         bismi_allah_arr[i] = @intCast(i);
     }
