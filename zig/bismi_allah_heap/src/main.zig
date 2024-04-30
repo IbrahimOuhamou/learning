@@ -14,7 +14,7 @@ pub fn main() !void {
     for (0..bismi_allah_arr.len) |i| {
         bismi_allah_arr[i] = @intCast(i);
     }
-    std.debug.print("alhamdo li Allah arr is now: [{d}]{any}\n", .{bismi_allah_return_arr_size(bismi_allah_arr), bismi_allah_arr });
+    std.debug.print("alhamdo li Allah arr is now: [{d}]{any}\n", .{ bismi_allah_return_arr_size(bismi_allah_arr), bismi_allah_arr });
     defer std.debug.print("alhamdo li Allah defer is now: [{d}]{any}\n", .{ bismi_allah_arr.len, bismi_allah_arr });
 
     bismi_allah_arr = try allocator.alloc(u8, 99);
@@ -22,10 +22,8 @@ pub fn main() !void {
     for (0..bismi_allah_arr.len) |i| {
         bismi_allah_arr[i] = @intCast(i);
     }
-
 }
 
 fn bismi_allah_return_arr_size(arr: []u8) usize {
     return arr.len;
 }
-
