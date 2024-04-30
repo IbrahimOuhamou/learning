@@ -9,11 +9,23 @@ pub fn main() !void {
 
     var allocator = arena.allocator();
 
-    const bismi_allah_arr: []u8 = try allocator.alloc(u8, 12);
+    var bismi_allah_arr: []u8 = try allocator.alloc(u8, 12);
+    defer allocator.free(bismi_allah_arr);
+    for (0..bismi_allah_arr.len) |i| {
+        bismi_allah_arr[i] = @intCast(i);
+    }
+    std.debug.print("alhamdo li Allah arr is now: [{d}]{any}\n", .{bismi_allah_return_arr_size(bismi_allah_arr), bismi_allah_arr });
+    defer std.debug.print("alhamdo li Allah defer is now: [{d}]{any}\n", .{ bismi_allah_arr.len, bismi_allah_arr });
+
+    bismi_allah_arr = try allocator.alloc(u8, 99);
     defer allocator.free(bismi_allah_arr);
     for (0..bismi_allah_arr.len) |i| {
         bismi_allah_arr[i] = @intCast(i);
     }
 
-    std.debug.print("{any}\n", .{bismi_allah_arr});
 }
+
+fn bismi_allah_return_arr_size(arr: []u8) usize {
+    return arr.len;
+}
+

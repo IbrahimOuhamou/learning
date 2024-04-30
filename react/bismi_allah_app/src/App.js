@@ -9,10 +9,18 @@ let bismi_allah = {
   fgc: "white",
 };
 
+function bismiAllah()
+{
+  alert("بسم الله الرحمن الرحيم");
+}
+
 function BismiAllah()
 {
     return (
-        <p>alhamdo li Allah</p>
+        <div>
+          <p>alhamdo li Allah</p>
+          <button onClick={bismiAllah}>say bismi Allah</button>
+        </div>
     );
 }
 
