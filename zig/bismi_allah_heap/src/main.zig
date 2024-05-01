@@ -22,6 +22,10 @@ pub fn main() !void {
     for (0..bismi_allah_arr.len) |i| {
         bismi_allah_arr[i] = @intCast(i);
     }
+
+    var bismi_allah_arr_opt: ?[]u8 = null;
+    bismi_allah_arr_opt = try allocator.alloc(u8, 1);
+    bismi_allah_arr_opt = try allocator.realloc(bismi_allah_arr_opt.?, 1);
 }
 
 fn bismi_allah_return_arr_size(arr: []u8) usize {
