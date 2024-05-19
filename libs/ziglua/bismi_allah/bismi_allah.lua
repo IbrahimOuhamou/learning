@@ -3,4 +3,7 @@
 
 print("بسم الله الرحمن الرحيم")
 print(basmala)
+sayBismiAllah()
+
+print(basmala["la ilaha illa Allah"])
 
