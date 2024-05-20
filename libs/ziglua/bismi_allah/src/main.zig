@@ -28,7 +28,7 @@ const BismiAllah = struct {
     id: u32 = 0,
 };
 
-pub export fn luaopen_bismi_allah_module(lua: *Lua) i32 {
+pub export fn luaopen_libbismi_allah_module(lua: *Lua) i32 {
     return bismiAllahModule(lua);
 }
 
