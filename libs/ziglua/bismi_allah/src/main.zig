@@ -15,9 +15,22 @@ pub fn bismiAllahIndex(lua: *Lua) i32 {
     return 1;
 }
 
+pub fn bismiAllahModule(lua: *Lua) i32 {
+    lua.newTable();
+
+    lua.pushInteger(7);
+    lua.setField(-2, "bismi_allah_number");
+
+    return 1;
+}
+
 const BismiAllah = struct {
     id: u32 = 0,
 };
+
+pub export fn luaopen_bismi_allah_module(lua: *Lua) i32 {
+    return bismiAllahModule(lua);
+}
 
 pub fn main() !void {
     std.debug.print("بسم الله الرحمن الرحيم\n", .{});
@@ -55,9 +68,11 @@ pub fn main() !void {
     lua.setField(-2, "__index");
     lua.setMetatable(basmala_index);
 
-    const bismi_allah = BismiAllah{ .id = 99 };
+    var bismi_allah = BismiAllah{ .id = 99 };
     lua.pushLightUserdata(&bismi_allah);
     lua.setGlobal("bismi_allah");
+
+    //_ = ziglua.exportFn("bismi_allah_module", bismiAllahModule);
 
     try lua.doFile("bismi_allah.lua");
 }
