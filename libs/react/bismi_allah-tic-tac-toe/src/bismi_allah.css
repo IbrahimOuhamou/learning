@@ -1,0 +1,18 @@
+/*بسم الله الرحمن الرحيم*/
+/*la ilaha illa Allah Mohammed Rassoul Allah*/
+.square {
+  border: 1px solid #999;
+  float: left;
+  height: 34px;
+  width: 34px;
+  font-size: 24px;
+  font-weight: bold;
+  background-color: #00000000;
+}
+
+.board-row {
+  clear: both;
+  content: '';
+  display: table;
+}
+
