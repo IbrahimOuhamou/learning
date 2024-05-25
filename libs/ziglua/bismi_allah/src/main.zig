@@ -73,6 +73,14 @@ pub fn main() !void {
     lua.setGlobal("bismi_allah");
 
     //_ = ziglua.exportFn("bismi_allah_module", bismiAllahModule);
+    {
+        _ = try lua.getGlobal("bismi_allah");
+        const bismi_allah_ud = lua.toUserdata(BismiAllah, -1);
+        std.debug.print("bismi_allah_ud toUserdata == {any}\n", .{bismi_allah_ud});
 
+        _ = try lua.getGlobal("bismi_allah");
+        const bismi_allah_any = lua.toAny(*BismiAllah, -1);
+        std.debug.print("bismi_allah_any toAny == {any}\n", .{bismi_allah_any});
+    }
     try lua.doFile("bismi_allah.lua");
 }
