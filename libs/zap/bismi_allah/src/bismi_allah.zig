@@ -7,6 +7,7 @@ fn on_request(r: zap.Request) void {
     r.setStatus(.not_found);
     std.debug.print("alamdo li Allah\n\n{any}\n", .{r});
     std.debug.print("method: {s}\n", .{r.method.?});
+    std.debug.print("body: {s}\n", .{if (null != r.body) r.body.? else "null"});
     std.debug.print("query: {s}\n", .{if (null != r.query) r.query.? else "null"});
     std.debug.print("path: {s}\n\n", .{r.path.?});
 
