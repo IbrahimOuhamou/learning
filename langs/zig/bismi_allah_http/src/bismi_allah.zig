@@ -14,7 +14,9 @@ pub fn main() !void {
 
     const bismi_allah_buffer = try page_allocator.alloc(u8, 4096);
 
-    const connection = try std.net.Server.accept();
+    const connection = try std.net.Server.Connection{ .stream = std.net.Stream{ .handle = std.posix.bind(sock: socket_t, addr: *const sockaddr, len: socklen_t) }, .address = .{ .in = 3000 } };
+    //.accept(.{ .stream = std.net.Stream{ .handle = std.net. } });
+
     defer connection.stream.close();
 
     var server = std.http.Server.init(connection, bismi_allah_buffer);
