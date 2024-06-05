@@ -85,7 +85,7 @@ fn bismiAllahRead(bismi_allah: anytype, stream: anytype) !void {
 }
 
 test "function with anyopaque with read()/write()" {
-    //const exepect = std.testing.expect;
+    const exepect = std.testing.expect;
     const file = try std.fs.cwd().createFile("bismi_allah.bin", .{ .read = true });
     defer {
         file.close();
@@ -102,9 +102,10 @@ test "function with anyopaque with read()/write()" {
     try bismiAllahWrite(&bismi_allah, file);
 
     bismi_allah = .{ .bismi_allah1 = 0, .bismi_allah2 = 0, .bismi_allah3 = 0 };
-    std.debug.print("alhamdo li Allah {any}\n", .{bismi_allah});
 
     try file.seekTo(0);
     try bismiAllahRead(&bismi_allah, file);
-    std.debug.print("alhamdo li Allah {any}\n", .{bismi_allah});
+    try exepect(bismi_allah.bismi_allah1 == 199);
+    try exepect(bismi_allah.bismi_allah2 == 299);
+    try exepect(bismi_allah.bismi_allah3 == 399);
 }
