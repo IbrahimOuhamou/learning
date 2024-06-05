@@ -71,3 +71,40 @@ test "binary files" {
     try exepect(bismi_allah.int == 44);
     try exepect(bismi_allah.float == 0.13);
 }
+
+fn bismiAllahWrite(bismi_allah: anytype, stream: anytype) !void {
+    _ = try stream.write(std.mem.asBytes(&bismi_allah.bismi_allah1));
+    _ = try stream.write(std.mem.asBytes(&bismi_allah.bismi_allah2));
+    _ = try stream.write(std.mem.asBytes(&bismi_allah.bismi_allah3));
+}
+
+fn bismiAllahRead(bismi_allah: anytype, stream: anytype) !void {
+    _ = try stream.read(std.mem.asBytes(&bismi_allah.bismi_allah1));
+    _ = try stream.read(std.mem.asBytes(&bismi_allah.bismi_allah2));
+    _ = try stream.read(std.mem.asBytes(&bismi_allah.bismi_allah3));
+}
+
+test "function with anyopaque with read()/write()" {
+    //const exepect = std.testing.expect;
+    const file = try std.fs.cwd().createFile("bismi_allah.bin", .{ .read = true });
+    defer {
+        file.close();
+        std.fs.cwd().deleteFile("bismi_allah.bin") catch {};
+    }
+
+    const BismiAllah = struct {
+        bismi_allah1: u32 = 12,
+        bismi_allah2: u64 = 12,
+        bismi_allah3: f32 = 12.0,
+    };
+    var bismi_allah = BismiAllah{ .bismi_allah1 = 199, .bismi_allah2 = 299, .bismi_allah3 = 399 };
+
+    try bismiAllahWrite(&bismi_allah, file);
+
+    bismi_allah = .{ .bismi_allah1 = 0, .bismi_allah2 = 0, .bismi_allah3 = 0 };
+    std.debug.print("alhamdo li Allah {any}\n", .{bismi_allah});
+
+    try file.seekTo(0);
+    try bismiAllahRead(&bismi_allah, file);
+    std.debug.print("alhamdo li Allah {any}\n", .{bismi_allah});
+}
