@@ -30,8 +30,20 @@ test "simple file" {
         };
         var bismi_allah = BismiAllah{ .id = 99, .name = [_]u8{ 'a', 's', 't', 'a', 'g', 'h', 'f', 'i', 'r', 'o', ' ', 'A', 'l', 'l', 'a', 'h', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' } };
         try file.seekTo(0);
-        _ = try file.write(&std.mem.toBytes(&bismi_allah.id));
+        _ = try file.writeAll(std.mem.asBytes(&bismi_allah.id));
+        bismi_allah.id = 8;
         try file.seekTo(0);
-        _ = try file.readAll(std.mem.toBytes(&bismi_allah.id));
+        _ = try file.read(std.mem.asBytes(&bismi_allah.id));
+        std.debug.print("alhamdo li Allah bismi_allah.id == {d}\n", .{bismi_allah.id});
+
+        try file.seekTo(0);
+        const bit: u8 = 1;
+
+        var bit_buffer: @TypeOf(bit) = 0;
+        bit_buffer = bit;
+        std.mem.reverse(u8, std.mem.asBytes(&bit_buffer));
+
+        _ = try file.write(std.mem.asBytes(&bit_buffer));
+        std.debug.print("alhamdo li Allah bit == {d} | bit_buffer == {d}\n", .{ bit, bit_buffer });
     }
 }
