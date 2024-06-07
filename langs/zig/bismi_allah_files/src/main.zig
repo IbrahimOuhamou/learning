@@ -109,3 +109,22 @@ test "function with anyopaque with read()/write()" {
     try exepect(bismi_allah.bismi_allah2 == 299);
     try exepect(bismi_allah.bismi_allah3 == 399);
 }
+
+test "reading after EOF" {
+    //const exepect = std.testing.expect;
+    const file = try std.fs.cwd().createFile("bismi_allah.bin", .{ .read = true });
+    defer {
+        file.close();
+        std.fs.cwd().deleteFile("bismi_allah.bin") catch {};
+    }
+    _ = try file.write("la ilaha illa Allah Mohammed Rassoul Allah");
+    try file.seekTo(0);
+    var buffer: [200]u8 = undefined;
+    var bismi_allah: u32 = 0;
+    std.debug.print("read bytes {d}\n", .{try file.read(&buffer)});
+    std.debug.print("read bytes {d}\n", .{try file.read(&buffer)});
+    std.debug.print("read bytes {d}\n", .{try file.read(&buffer)});
+    std.debug.print("alhamdo li Allah {s}\n", .{buffer});
+    std.debug.print("read bytes {d}\n", .{try file.readAll(&buffer)});
+    std.debug.print("read bytes {d}\n", .{try file.readAll(std.mem.asBytes(&bismi_allah))});
+}
