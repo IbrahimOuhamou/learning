@@ -68,8 +68,6 @@ fn login(r: zap.Request) void {
         return;
     };
     const account_password_parsed = if (null != account_password) account_password.?.str else "";
-    const account_password2 = r.getParamSlice("input_account_password") orelse "";
-    std.debug.print("account_password2: '{s}'\n", .{account_password2});
 
     std.debug.print("alhamdo li Allah login info was: '{s}' : '{s}'\n", .{ account_name_parsed, account_password_parsed });
     if (std.mem.eql(u8, "bismi_allah", account_name_parsed) and std.mem.eql(u8, "bismi_allah", account_password_parsed)) {
