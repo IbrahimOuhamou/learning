@@ -5,9 +5,8 @@ const zap = @import("zap");
 
 var allocator: std.mem.Allocator = undefined;
 
-fn error_page(r: zap.Request) void {
-    r.setStatus(.internal_server_error);
-    r.sendBody(
+fn simplePage(r: zap.Request, body: []const u8) void {
+    const template =
         \\<html>
         \\<head>
         \\  <meta charset="utf-8">
@@ -16,69 +15,67 @@ fn error_page(r: zap.Request) void {
         \\</head>
         \\<body>
         \\  <p>بسم الله الرحمن الرحيم</p>
-        \\ <p style="color:red">Internal error</p>
+        \\{s}
         \\</body>
         \\</html>
-    ) catch return;
+    ;
+
+    var buffer: [template.len + 1024 * 80]u8 = undefined;
+    const filled_buffer = std.fmt.bufPrintZ(&buffer, template, .{body}) catch "Internal Error";
+    r.sendBody(filled_buffer) catch return;
+}
+
+fn errorPage(r: zap.Request, message: []const u8) void {
+    const error_template =
+        \\<html>
+        \\<head>
+        \\  <meta charset="utf-8">
+        \\  <title>in the name of Allah</title>
+        \\  <link href="/bismi_allah.css" rel="text/stylesheet">
+        \\</head>
+        \\<body>
+        \\  <p>بسم الله الرحمن الرحيم</p>
+        \\  <h1 style="color:red">{s}</h1>
+        \\</body>
+        \\</html>
+    ;
+
+    var buffer: [error_template.len + 1024]u8 = undefined;
+    const filled_buffer = std.fmt.bufPrintZ(&buffer, error_template, .{message}) catch "Internal Error";
+    r.sendBody(filled_buffer) catch return;
 }
 
 fn login(r: zap.Request) void {
-    r.parseBody() catch error_page(r);
+    r.parseBody() catch {
+        r.setStatus(.internal_server_error);
+        errorPage(r, "Internal Error");
+    };
     r.parseQuery();
     std.debug.print("alhamdo li Allah param count: {d}\n", .{r.getParamCount()});
-    // const params = r.parametersToOwnedList(allocator, false) catch unreachable;
-    // defer params.deinit();
-    // std.debug.print("alhamdo li Allah params: {any}\n", .{params.items});
-
-    // for (params.items) |kv| {
-    //     if (kv.value) |v| {
-    //         std.debug.print("param '{s}' in owned list is '{s}'\n", .{ kv.key.str, v.String.str });
-    //     }
-    // }
 
     std.debug.print("{s}\n", .{r.body orelse ""});
     const account_name = (r.getParamStr(allocator, "input_account_name", false) catch {
-        error_page(r);
+        r.setStatus(.forbidden);
+        errorPage(r, "Required info were not provided");
         return;
     });
     const account_name_parsed = if (null != account_name) account_name.?.str else "";
 
     // const account_password = r.getParamSlice("input_account_password") orelse "";
     const account_password = r.getParamStr(allocator, "input_account_password", false) catch {
-        error_page(r);
+        r.setStatus(.forbidden);
+        errorPage(r, "Required info were not provided");
         return;
     };
     const account_password_parsed = if (null != account_password) account_password.?.str else "";
+    const account_password2 = r.getParamSlice("input_account_password") orelse "";
+    std.debug.print("account_password2: '{s}'\n", .{account_password2});
 
     std.debug.print("alhamdo li Allah login info was: '{s}' : '{s}'\n", .{ account_name_parsed, account_password_parsed });
     if (std.mem.eql(u8, "bismi_allah", account_name_parsed) and std.mem.eql(u8, "bismi_allah", account_password_parsed)) {
-        r.sendBody(
-            \\<html>
-            \\<head>
-            \\  <meta charset="utf-8">
-            \\  <title>in the name of Allah</title>
-            \\  <link href="/bismi_allah.css" rel="text/stylesheet">
-            \\</head>
-            \\<body>
-            \\  <p>بسم الله الرحمن الرحيم</p>
-            \\  <p>connection info was correct</p>
-            \\</body>
-            \\</html>
-        ) catch return;
+        simplePage(r, "<p>connection info was correct</p>");
     } else {
-        r.sendBody(
-            \\<html>
-            \\<head>
-            \\  <meta charset="utf-8">
-            \\  <title>in the name of Allah</title>
-            \\  <link href="/bismi_allah.css" rel="text/stylesheet">
-            \\</head>
-            \\<body>
-            \\  <p>بسم الله الرحمن الرحيم</p>
-            \\  <p style="color:red;">connection info incorrect</p>
-            \\</body>
-            \\</html>
-        ) catch return;
+        errorPage(r, "connection info incorrect");
     }
 }
 
@@ -96,62 +93,31 @@ fn on_request(r: zap.Request) void {
     if (std.mem.startsWith(u8, r.path.?, "/account")) {
         request_account(r);
     } else if (std.mem.startsWith(u8, r.path.?, "/bismi_allah")) {
-        r.sendBody(
-            \\<html>
-            \\<head>
-            \\  <meta charset="utf-8">
-            \\  <title>in the name of Allah</title>
-            \\  <link href="/bismi_allah.css" rel="text/stylesheet">
-            \\</head>
-            \\<body>
-            \\  <p>بسم الله الرحمن الرحيم</p>
-            \\</body>
-            \\</html>
-        ) catch return;
+        simplePage(r, "");
     } else {
         //alhamdo li Allah
         //on error 404
         r.setStatus(.not_found);
-        r.sendBody("<html><head><meta charset=\"utf-8\"></head><body><p>بسم الله الرحمن الرحيم</p><h1>Error: page not found</h1></body></html>") catch return;
+        errorPage(r, "Error: page not found");
     }
 }
 
 fn request_account(r: zap.Request) void {
-    if (std.mem.startsWith(u8, "/account/login", r.path.?)) {
+    if (std.mem.startsWith(u8, r.path.?, "/account/login")) {
         if (null == r.body) {
-            r.sendBody(
-                \\<html>
-                \\<head>
-                \\  <meta charset="utf-8">
-                \\  <title>in the name of Allah</title>
-                \\  <link href="/bismi_allah.css" rel="text/stylesheet">
-                \\</head>
-                \\  <body>
-                \\      <p>بسم الله الرحمن الرحيم</p>
-                \\      <form method="post" action="/account/login">
+            // r.sendFile("public/bismi_allah.html") catch errorPage(r, "internal Error");
+            simplePage(r,
+                \\  <form method="post" action="/account/login">
                 \\      <input name="input_account_name" type="text" placeholder="account name"/> <br/>
                 \\      <input name="input_account_password" type="password" placeholder="password"/> <br/>
                 \\      <button type="submit">login</button> <br/>
-                \\  </form>
-                \\</body>
-                \\</html>
-            ) catch return;
+                \\ </form>
+            );
             return;
         }
         login(r);
     } else {
-        r.sendBody(
-            \\<html>
-            \\<head>
-            \\  <meta charset="utf-8">
-            \\  <title>in the name of Allah</title>
-            \\  <link href="/bismi_allah.css" rel="text/stylesheet">
-            \\</head>
-            \\<body>
-            \\  <p>بسم الله الرحمن الرحيم</p>
-            \\</body>
-            \\</html>
-        ) catch return;
+        simplePage(r, "");
     }
 }
 
@@ -164,7 +130,6 @@ pub fn main() !void {
 
     var listener = zap.HttpListener.init(.{
         .port = 3000,
-        // .on_request = bismi_allah_router.on_request_handler(),
         .on_request = on_request,
         // .public_folder = "public",
     });
