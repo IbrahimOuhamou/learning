@@ -11,7 +11,23 @@ const Session = struct {
 var allocator: std.mem.Allocator = undefined;
 
 var accounts: std.AutoHashMap([64]u8, [64]u8) = undefined;
-var sessions: std.AutoHashMap([36]u8, Session) = undefined;
+var sessions: std.AutoHashMap(uuid.urn.Urn, Session) = undefined;
+
+fn isSessionSet(r: zap.Request) bool {
+    r.parseCookies(false);
+
+    if (null != r.getCookieStr(allocator, "session_id", false) catch null) return true;
+    return false;
+}
+
+fn getSession(r: zap.Request) ?Session {
+    if (!isSessionSet(r)) return null;
+
+    const session_uuid: uuid.urn.Urn = r.getCookieStr(allocator, "session_id", false) catch {};
+    if (session_uuid) |s_uuid| {
+        sessions.get(s_uuid.str);
+    } else return null;
+}
 
 fn simplePage(r: zap.Request, body: []const u8) void {
     const template =
@@ -82,7 +98,6 @@ fn requestAccount(r: zap.Request) void {
         //
     } else if (std.mem.eql(u8, r.path.?, "/account/login")) {
         if (null == r.body) {
-            // r.sendFile("public/bismi_allah.html") catch errorPage(r, "internal Error");
             simplePage(r,
                 \\  <form method="post" action="/account/login">
                 \\      <input name="input_account_name" type="text" placeholder="account name"/> <br/>
@@ -152,12 +167,26 @@ fn login(r: zap.Request) void {
         if (std.mem.eql(u8, &real_account_password, &account_password_buffer)) {
             simplePage(r, "<p>connection info were correct</p>");
             // now should create the session if not existed by the will of Allah
-            const session_id = uuid.v7.new();
-            const session_uuid = uuid.urn.serialize(session_id);
-            sessions.put(session_uuid, std.AutoHashMap([128]u8, [512]u8)) catch {
-                r.setStatus(.internal_server_error);
-                errorPage(r, "internal Error");
-            };
+            if (!isSessionSet(r)) {
+                const session_id = uuid.v7.new();
+                const session_uuid = uuid.urn.serialize(session_id);
+                sessions.put(session_uuid, Session{ .values = std.AutoHashMap([128]u8, [512]u8).init(allocator) }) catch {
+                    r.setStatus(.internal_server_error);
+                    errorPage(r, "internal Error");
+                    return;
+                };
+                r.setCookie(.{
+                    .name = "session_id",
+                    .value = &session_uuid,
+                    .path = "/",
+                    .max_age_s = 3600,
+                    .domain = null,
+                    .secure = true,
+                    .http_only = false,
+                }) catch |e| {
+                    std.debug.print("alhamdo li Allah ERROR: cannot set Cookie {any}\n", .{e});
+                };
+            }
         } else {
             errorPage(r, "connection info incorrect");
         }
@@ -224,6 +253,9 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
     allocator = gpa.allocator();
+
+    sessions = std.AutoHashMap(uuid.urn.Urn, Session).init(allocator);
+    defer sessions.deinit();
 
     accounts = std.AutoHashMap([64]u8, [64]u8).init(allocator);
     defer accounts.deinit();
