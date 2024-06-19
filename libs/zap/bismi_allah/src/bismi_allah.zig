@@ -174,6 +174,30 @@ fn register(r: zap.Request) void {
     };
     const account_password_parsed = if (null != account_password) account_password.?.str else "";
 
+    var account_name_buffer: [64]u8 = undefined;
+    var account_password_buffer: [64]u8 = undefined;
+
+    {
+        var i: usize = 0;
+        while (i < account_name_buffer.len) : (i += 1) account_name_buffer[i] = 0;
+
+        i = 0;
+        while (i < account_password_buffer.len) : (i += 1) account_password_buffer[i] = 0;
+    }
+
+    std.mem.copyForwards(u8, &account_name_buffer, account_name_parsed);
+    std.mem.copyForwards(u8, &account_password_buffer, account_password_parsed);
+
+    if (null == accounts.get(account_name_buffer)) {
+        accounts.put(account_name_buffer, account_password_buffer) catch {
+            r.setStatus(.internal_server_error);
+            errorPage(r, "Could not add user due to an internal error");
+        };
+        simplePage(r, "<p>alhamdo li Allah should be registred now</p>");
+    } else {
+        errorPage(r, "user already exists");
+    }
+
     std.debug.print("alhamdo li Allah should now register '{s}':'{s}'\n", .{ account_name_parsed, account_password_parsed });
     simplePage(r, "<p>alhamdo li Allah</p>");
 }
