@@ -173,6 +173,9 @@ fn register(r: zap.Request) void {
         return;
     };
     const account_password_parsed = if (null != account_password) account_password.?.str else "";
+
+    std.debug.print("alhamdo li Allah should now register '{s}':'{s}'\n", .{ account_name_parsed, account_password_parsed });
+    simplePage(r, "<p>alhamdo li Allah</p>");
 }
 
 pub fn main() !void {

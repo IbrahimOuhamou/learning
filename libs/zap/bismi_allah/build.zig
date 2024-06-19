@@ -19,7 +19,9 @@ pub fn build(b: *std.Build) void {
 
     const exe = b.addExecutable(.{
         .name = "bismi_allah",
+        // .root_source_file = b.path("src/bismi_allah.zig"),
         .root_source_file = b.path("src/bismi_allah.zig"),
+        
         .target = target,
         .optimize = optimize,
     });
