@@ -21,7 +21,7 @@ pub fn build(b: *std.Build) void {
         .name = "bismi_allah",
         // .root_source_file = b.path("src/bismi_allah.zig"),
         .root_source_file = b.path("src/bismi_allah.zig"),
-        
+
         .target = target,
         .optimize = optimize,
     });
@@ -32,8 +32,14 @@ pub fn build(b: *std.Build) void {
         .openssl = false, // set to true to enable TLS support
     });
 
+    const uuid_zig = b.dependency("uuid-zig", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
     exe.root_module.addImport("zap", zap.module("zap"));
     exe.linkLibrary(zap.artifact("facil.io"));
+    exe.root_module.addImport("uuid-zig", uuid_zig.module("uuid"));
 
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default

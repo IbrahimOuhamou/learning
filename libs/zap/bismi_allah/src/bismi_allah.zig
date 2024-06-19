@@ -2,10 +2,16 @@
 //la ilaha illa Allah Mohammed Rassoul Allah
 const std = @import("std");
 const zap = @import("zap");
+const uuid = @import("uuid-zig");
+
+const Session = struct {
+    values: std.AutoHashMap([128]u8, [512]u8),
+};
 
 var allocator: std.mem.Allocator = undefined;
 
 var accounts: std.AutoHashMap([64]u8, [64]u8) = undefined;
+var sessions: std.AutoHashMap([36]u8, Session) = undefined;
 
 fn simplePage(r: zap.Request, body: []const u8) void {
     const template =
@@ -23,7 +29,7 @@ fn simplePage(r: zap.Request, body: []const u8) void {
     ;
 
     var buffer: [template.len + 1024 * 80]u8 = undefined;
-    const filled_buffer = std.fmt.bufPrintZ(&buffer, template, .{body}) catch "Internal Error";
+    const filled_buffer = std.fmt.bufPrint(&buffer, template, .{body}) catch "Internal Error";
     r.sendBody(filled_buffer) catch return;
 }
 
@@ -43,7 +49,7 @@ fn errorPage(r: zap.Request, message: []const u8) void {
     ;
 
     var buffer: [error_template.len + 1024]u8 = undefined;
-    const filled_buffer = std.fmt.bufPrintZ(&buffer, error_template, .{message}) catch "Internal Error";
+    const filled_buffer = std.fmt.bufPrint(&buffer, error_template, .{message}) catch "Internal Error";
     r.sendBody(filled_buffer) catch return;
 }
 
@@ -71,7 +77,10 @@ fn onRequest(r: zap.Request) void {
 }
 
 fn requestAccount(r: zap.Request) void {
-    if (std.mem.eql(u8, r.path.?, "/account/login")) {
+    if (null == r.path) return;
+    if (std.mem.eql(u8, r.path.?, "/account")) {
+        //
+    } else if (std.mem.eql(u8, r.path.?, "/account/login")) {
         if (null == r.body) {
             // r.sendFile("public/bismi_allah.html") catch errorPage(r, "internal Error");
             simplePage(r,
@@ -142,6 +151,13 @@ fn login(r: zap.Request) void {
     if (accounts.get(account_name_buffer)) |real_account_password| {
         if (std.mem.eql(u8, &real_account_password, &account_password_buffer)) {
             simplePage(r, "<p>connection info were correct</p>");
+            // now should create the session if not existed by the will of Allah
+            const session_id = uuid.v7.new();
+            const session_uuid = uuid.urn.serialize(session_id);
+            sessions.put(session_uuid, std.AutoHashMap([128]u8, [512]u8)) catch {
+                r.setStatus(.internal_server_error);
+                errorPage(r, "internal Error");
+            };
         } else {
             errorPage(r, "connection info incorrect");
         }
