@@ -10,7 +10,7 @@ var accounts: std.AutoHashMap([64]u8, [64]u8) = undefined;
 fn simplePage(r: zap.Request, body: []const u8) void {
     const template =
         \\<html>
-        \\<head> 
+        \\<head>
         \\  <meta charset="utf-8">
         \\  <title>in the name of Allah</title>
         \\  <link href="/bismi_allah.css" rel="text/stylesheet">
