@@ -5,7 +5,7 @@ const zap = @import("zap");
 
 var allocator: std.mem.Allocator = undefined;
 
-var accounts: std.AutoHashMap([64:0]u8, [64:0]u8) = undefined;
+var accounts: std.AutoHashMap([64]u8, [64]u8) = undefined;
 
 fn simplePage(r: zap.Request, body: []const u8) void {
     const template =
@@ -125,9 +125,8 @@ fn login(r: zap.Request) void {
     };
     const account_password_parsed = if (null != account_password) account_password.?.str else "";
 
-    std.debug.print("alhamdo li Allah {any}\n", .{account_password_parsed});
-    var account_name_buffer: [64:0]u8 = undefined;
-    var account_password_buffer: [64:0]u8 = undefined;
+    var account_name_buffer: [64]u8 = undefined;
+    var account_password_buffer: [64]u8 = undefined;
 
     {
         var i: usize = 0;
@@ -149,11 +148,31 @@ fn login(r: zap.Request) void {
     } else {
         errorPage(r, "connection info incorrect");
     }
+
     std.debug.print("alhamdo li Allah login info buffer were: '{s}' : '{s}'\n", .{ account_name_buffer, account_password_buffer });
 }
 
 fn register(r: zap.Request) void {
-    _ = r;
+    r.parseBody() catch {
+        r.setStatus(.internal_server_error);
+        errorPage(r, "Internal Error");
+    };
+    r.parseQuery();
+    std.debug.print("alhamdo li Allah param count: {d}\n", .{r.getParamCount()});
+
+    const account_name = (r.getParamStr(allocator, "input_account_name", false) catch {
+        r.setStatus(.bad_request);
+        errorPage(r, "Required info were not provided");
+        return;
+    });
+    const account_name_parsed = if (null != account_name) account_name.?.str else "";
+
+    const account_password = r.getParamStr(allocator, "input_account_password", false) catch {
+        r.setStatus(.bad_request);
+        errorPage(r, "Required info were not provided");
+        return;
+    };
+    const account_password_parsed = if (null != account_password) account_password.?.str else "";
 }
 
 pub fn main() !void {
@@ -163,11 +182,11 @@ pub fn main() !void {
     defer _ = gpa.deinit();
     allocator = gpa.allocator();
 
-    accounts = std.AutoHashMap([64:0]u8, [64:0]u8).init(allocator);
+    accounts = std.AutoHashMap([64]u8, [64]u8).init(allocator);
     defer accounts.deinit();
     {
-        var buffer_name: [64:0]u8 = undefined;
-        var buffer_password: [64:0]u8 = undefined;
+        var buffer_name: [64]u8 = undefined;
+        var buffer_password: [64]u8 = undefined;
 
         {
             var i: usize = 0;
@@ -182,7 +201,15 @@ pub fn main() !void {
         try accounts.put(buffer_name, buffer_password);
 
         var password = accounts.get(buffer_name);
-        std.debug.print("alahdmo li Allah name is: '{s}'\n", .{password.?});
+        if (!std.mem.eql(u8, &buffer_password, &password.?)) {
+            unreachable;
+        }
+
+        if (accounts.get(buffer_name)) |real_password| {
+            if (!std.mem.eql(u8, &buffer_password, &real_password)) {
+                unreachable;
+            }
+        }
 
         {
             var i: usize = 0;
@@ -197,7 +224,7 @@ pub fn main() !void {
         try accounts.put(buffer_name, buffer_password);
 
         password = accounts.get(buffer_name);
-        std.debug.print("alahdmo li Allah name is: '{s}'\n", .{password.?});
+        std.debug.print("alahdmo li Allah name is: '{any}'\n", .{password.?});
     }
 
     var listener = zap.HttpListener.init(.{
