@@ -4,8 +4,12 @@ const std = @import("std");
 const zap = @import("zap");
 const uuid = @import("uuid-zig");
 
+const Error = error{
+    bismi_allah,
+};
+
 const Session = struct {
-    values: std.AutoHashMap([128]u8, [512]u8),
+    values: std.StringHashMap([512]u8),
 };
 
 var allocator: std.mem.Allocator = undefined;
@@ -23,10 +27,65 @@ fn isSessionSet(r: zap.Request) bool {
 fn getSession(r: zap.Request) ?Session {
     if (!isSessionSet(r)) return null;
 
-    const session_uuid: uuid.urn.Urn = r.getCookieStr(allocator, "session_id", false) catch {};
-    if (session_uuid) |s_uuid| {
-        sessions.get(s_uuid.str);
-    } else return null;
+    const session_uuid: *const uuid.urn.Urn = if (r.getCookieStr(allocator, "session_id", false) catch null) |maybe_session_uuid| maybe_session_uuid.str[0..36] else &[_]u8{0} ** 36;
+
+    if (std.mem.eql(u8, session_uuid, &[_]u8{0} ** 36)) {
+        std.debug.print("alhamdo li Allah: Error while getting the session uuid\n", .{});
+        return null;
+    }
+    std.debug.print("alhamdo li Allah got session uuid '{s}'\n", .{session_uuid});
+
+    if (sessions.get(session_uuid.*)) |session| {
+        return session;
+    } else {
+        r.setCookie(.{
+            .name = "session_id",
+            .value = &session_uuid.*,
+            .path = "/",
+            .max_age_s = 60 * 60 * 24,
+            .domain = null,
+            .secure = true,
+            .http_only = false,
+        }) catch |e| {
+            std.debug.print("alhamdo li Allah ERROR: cannot set Cookie {any}\n", .{e});
+            return null;
+        };
+        sessions.put(session_uuid.*, Session{ .values = std.StringHashMap([512]u8).init(allocator) }) catch {
+            r.setStatus(.internal_server_error);
+            errorPage(r, "internal Error");
+            std.debug.print("alhamdo li Allah: Error creating session 'putting it in sessions StringHashMap'\n", .{});
+            return null;
+        };
+        return getSession(r);
+    }
+}
+
+fn startSession(r: zap.Request) Error!void {
+    if (isSessionSet(r)) return;
+
+    const session_id = uuid.v7.new();
+    const session_uuid = uuid.urn.serialize(session_id);
+    r.parseCookies(false);
+
+    r.setCookie(.{
+        .name = "session_id",
+        .value = &session_uuid,
+        .path = "/",
+        .max_age_s = 60 * 60 * 24,
+        .domain = null,
+        .secure = true,
+        .http_only = false,
+    }) catch |e| {
+        std.debug.print("alhamdo li Allah ERROR: cannot set Cookie {any}\n", .{e});
+        return Error.bismi_allah;
+    };
+
+    sessions.put(session_uuid, Session{ .values = std.StringHashMap([512]u8).init(allocator) }) catch {
+        r.setStatus(.internal_server_error);
+        errorPage(r, "internal Error");
+        std.debug.print("alhamdo li Allah: Error creating session 'putting it in sessions StringHashMap'\n", .{});
+        return;
+    };
 }
 
 fn simplePage(r: zap.Request, body: []const u8) void {
@@ -80,6 +139,21 @@ fn onRequest(r: zap.Request) void {
     std.debug.print("query: {s}\n", .{r.query orelse "null"});
     std.debug.print("path: {s}\n\n", .{r.path orelse "null"});
 
+    startSession(r) catch {
+        std.debug.print("alhamdo li Allah Error while starting session\n", .{});
+    };
+
+    std.debug.print("alhamdo li Allah there are {d} cookies\n", .{r.getCookiesCount()});
+    // iterate over all cookies as strings (always_alloc=false)
+    var strCookies = r.cookiesToOwnedStrList(allocator, false) catch unreachable;
+    defer strCookies.deinit();
+    std.debug.print("\n", .{});
+    for (strCookies.items) |kv| {
+        std.log.info("CookieStr `{s}` is `{s}`", .{ kv.key.str, kv.value.str });
+        // we don't need to deinit kv.key and kv.value because we requested always_alloc=false
+        // so they are just slices into the request buffer
+    }
+
     if (std.mem.startsWith(u8, r.path.?, "/account")) {
         requestAccount(r);
     } else if (std.mem.startsWith(u8, r.path.?, "/bismi_allah")) {
@@ -88,14 +162,30 @@ fn onRequest(r: zap.Request) void {
         //alhamdo li Allah
         //on error 404
         r.setStatus(.not_found);
-        errorPage(r, "Error: page not found");
+        errorPage(r, "Error 404: page not found");
     }
 }
 
 fn requestAccount(r: zap.Request) void {
     if (null == r.path) return;
-    if (std.mem.eql(u8, r.path.?, "/account")) {
-        //
+    if (std.mem.eql(u8, r.path.?, "/account") or std.mem.eql(u8, r.path.?, "/account/")) {
+        if (getSession(r)) |session| {
+            std.debug.print("account_name {any}\n", .{session.values.get("account_name")});
+            if (session.values.get("account_name")) |account_name| {
+                const body_template = "<p>assalamo alaykom {s}</p>";
+                var body_buffer: [body_template.len + 64 + 5]u8 = undefined;
+                const filled_buffer = std.fmt.bufPrint(&body_buffer, body_template, .{account_name}) catch "Internal Error";
+                std.debug.print("filled body buffer: '{s}'\n", .{filled_buffer});
+                simplePage(r, filled_buffer);
+            } else {
+                simplePage(r, "<p>asslamo alaykom user, please consider <a href=\"/account/login\">logging in</a> or <a href=\"/account/register\">register</a> if you don't have an account </p>");
+            }
+        } else {
+            r.setStatus(.internal_server_error);
+            errorPage(r, "internal Error");
+            std.debug.print("alhamdo li Allah: Error while getting the session\n", .{});
+            return;
+        }
     } else if (std.mem.eql(u8, r.path.?, "/account/login")) {
         if (null == r.body) {
             simplePage(r,
@@ -103,11 +193,11 @@ fn requestAccount(r: zap.Request) void {
                 \\      <input name="input_account_name" type="text" placeholder="account name"/> <br/>
                 \\      <input name="input_account_password" type="password" placeholder="password"/> <br/>
                 \\      <button type="submit">login</button> <br/>
-                \\ </form>
+                \\  </form>
             );
-            return;
+        } else {
+            login(r);
         }
-        login(r);
     } else if (std.mem.eql(u8, r.path.?, "/account/register")) {
         if (null == r.body) {
             simplePage(r,
@@ -115,13 +205,14 @@ fn requestAccount(r: zap.Request) void {
                 \\      <input name="input_account_name" type="text" placeholder="account name"  maxlength="64"/> <br/>
                 \\      <input name="input_account_password" type="password" placeholder="password"  maxlength="64"/> <br/>
                 \\      <button type="submit">login</button> <br/>
-                \\ </form>
+                \\  </form>
             );
-            return;
+        } else {
+            register(r);
         }
-        register(r);
     } else {
-        simplePage(r, "");
+        r.setStatus(.not_found);
+        errorPage(r, "Error 404: Page not found");
     }
 }
 
@@ -129,9 +220,11 @@ fn login(r: zap.Request) void {
     r.parseBody() catch {
         r.setStatus(.internal_server_error);
         errorPage(r, "Internal Error");
+        return;
     };
     r.parseQuery();
-    std.debug.print("alhamdo li Allah param count: {d}\n", .{r.getParamCount()});
+
+    // std.debug.print("alhamdo li Allah param count: {d}\n", .{r.getParamCount()});
 
     std.debug.print("{s}\n", .{r.body orelse ""});
     const account_name = (r.getParamStr(allocator, "input_account_name", false) catch {
@@ -149,44 +242,33 @@ fn login(r: zap.Request) void {
     };
     const account_password_parsed = if (null != account_password) account_password.?.str else "";
 
-    var account_name_buffer: [64]u8 = undefined;
-    var account_password_buffer: [64]u8 = undefined;
-
-    {
-        var i: usize = 0;
-        while (i < account_name_buffer.len) : (i += 1) account_name_buffer[i] = 0;
-
-        i = 0;
-        while (i < account_password_buffer.len) : (i += 1) account_password_buffer[i] = 0;
-    }
+    var account_name_buffer: [64]u8 = [_]u8{0} ** 64;
+    var account_password_buffer: [64]u8 = [_]u8{0} ** 64;
 
     std.mem.copyForwards(u8, &account_name_buffer, account_name_parsed);
     std.mem.copyForwards(u8, &account_password_buffer, account_password_parsed);
 
     if (accounts.get(account_name_buffer)) |real_account_password| {
         if (std.mem.eql(u8, &real_account_password, &account_password_buffer)) {
-            simplePage(r, "<p>connection info were correct</p>");
-            // now should create the session if not existed by the will of Allah
-            if (!isSessionSet(r)) {
-                const session_id = uuid.v7.new();
-                const session_uuid = uuid.urn.serialize(session_id);
-                sessions.put(session_uuid, Session{ .values = std.AutoHashMap([128]u8, [512]u8).init(allocator) }) catch {
+
+            // alhamdo li Allah fixed the bug of 'r.setCookie()' being called after request
+            var session = getSession(r);
+            if (null != session) {
+                var account_name_buffer_for_hashmap_value: [512]u8 = [_]u8{0} ** 512;
+
+                std.mem.copyForwards(u8, &account_name_buffer_for_hashmap_value, &account_name_buffer);
+
+                session.?.values.put("account_name", account_name_buffer_for_hashmap_value) catch {
                     r.setStatus(.internal_server_error);
-                    errorPage(r, "internal Error");
+                    errorPage(r, "Internal Server Error\n");
+                    std.debug.print("alhamdo li Allah error while putting the account_name to the session\n", .{});
                     return;
                 };
-                r.setCookie(.{
-                    .name = "session_id",
-                    .value = &session_uuid,
-                    .path = "/",
-                    .max_age_s = 3600,
-                    .domain = null,
-                    .secure = true,
-                    .http_only = false,
-                }) catch |e| {
-                    std.debug.print("alhamdo li Allah ERROR: cannot set Cookie {any}\n", .{e});
-                };
+                std.debug.print("alhamdo li Allah will set session.account_name = {s}\n", .{account_name_buffer_for_hashmap_value});
+                std.debug.print("alhamdo li Allah got account_name {any}\n", .{session.?.values.get("account_name")});
             }
+
+            simplePage(r, "<p>connection info were correct</p>");
         } else {
             errorPage(r, "connection info incorrect");
         }
@@ -219,16 +301,8 @@ fn register(r: zap.Request) void {
     };
     const account_password_parsed = if (null != account_password) account_password.?.str else "";
 
-    var account_name_buffer: [64]u8 = undefined;
-    var account_password_buffer: [64]u8 = undefined;
-
-    {
-        var i: usize = 0;
-        while (i < account_name_buffer.len) : (i += 1) account_name_buffer[i] = 0;
-
-        i = 0;
-        while (i < account_password_buffer.len) : (i += 1) account_password_buffer[i] = 0;
-    }
+    var account_name_buffer: [64]u8 = [_]u8{0} ** 64;
+    var account_password_buffer: [64]u8 = [_]u8{0} ** 64;
 
     std.mem.copyForwards(u8, &account_name_buffer, account_name_parsed);
     std.mem.copyForwards(u8, &account_password_buffer, account_password_parsed);
@@ -247,6 +321,17 @@ fn register(r: zap.Request) void {
     simplePage(r, "<p>alhamdo li Allah</p>");
 }
 
+fn onRequest2(r: zap.Request) void {
+    r.setCookie(.{ .name = "bismi_allah_cookie", .value = "bismi_allah" }) catch {
+        std.debug.print("alhamdo li Allah Error setting the cookie\n", .{});
+    };
+
+    simplePage(r,
+        \\  <p>la ilaha illa Allah</p>
+        \\  <p>Mohammed is the messenger of Allah</p>
+    );
+}
+
 pub fn main() !void {
     std.debug.print("بسم الله الرحمن الرحيم\n", .{});
 
@@ -260,16 +345,8 @@ pub fn main() !void {
     accounts = std.AutoHashMap([64]u8, [64]u8).init(allocator);
     defer accounts.deinit();
     {
-        var buffer_name: [64]u8 = undefined;
-        var buffer_password: [64]u8 = undefined;
-
-        {
-            var i: usize = 0;
-            while (i < buffer_name.len) : (i += 1) buffer_name[i] = 0;
-
-            i = 0;
-            while (i < buffer_password.len) : (i += 1) buffer_password[i] = 0;
-        }
+        var buffer_name: [64]u8 = [_]u8{0} ** 64;
+        var buffer_password: [64]u8 = [_]u8{0} ** 64;
 
         std.mem.copyForwards(u8, &buffer_name, "bismi_allah");
         std.mem.copyForwards(u8, &buffer_password, "bismi_allah");
@@ -299,7 +376,7 @@ pub fn main() !void {
         try accounts.put(buffer_name, buffer_password);
 
         password = accounts.get(buffer_name);
-        std.debug.print("alahdmo li Allah name is: '{any}'\n", .{password.?});
+        std.debug.print("alahdmo li Allah name is: '{s}'\n", .{password.?});
     }
 
     var listener = zap.HttpListener.init(.{
