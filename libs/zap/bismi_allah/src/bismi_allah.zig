@@ -15,7 +15,7 @@ const Session = struct {
 var allocator: std.mem.Allocator = undefined;
 
 var accounts: std.AutoHashMap([64]u8, [64]u8) = undefined;
-var sessions: std.AutoHashMap(uuid.urn.Urn, Session) = undefined;
+var sessions: std.AutoHashMap(uuid.urn.Urn, *Session) = undefined;
 
 fn isSessionSet(r: zap.Request) bool {
     r.parseCookies(false);
@@ -24,7 +24,7 @@ fn isSessionSet(r: zap.Request) bool {
     return false;
 }
 
-fn getSession(r: zap.Request) ?Session {
+fn getSession(r: zap.Request) ?*Session {
     if (!isSessionSet(r)) return null;
 
     const session_uuid: *const uuid.urn.Urn = if (r.getCookieStr(allocator, "session_id", false) catch null) |maybe_session_uuid| maybe_session_uuid.str[0..36] else &[_]u8{0} ** 36;
@@ -50,7 +50,15 @@ fn getSession(r: zap.Request) ?Session {
             std.debug.print("alhamdo li Allah ERROR: cannot set Cookie {any}\n", .{e});
             return null;
         };
-        sessions.put(session_uuid.*, Session{ .values = std.StringHashMap([512]u8).init(allocator) }) catch {
+        const session = allocator.create(Session) catch {
+            std.debug.print("alhamdo li Allah error while creating session object\n", .{});
+            r.setStatus(.not_found);
+            errorPage(r, "Internal Error");
+            return null;
+        };
+        session.* = Session{ .values = std.StringHashMap([512]u8).init(allocator) };
+
+        sessions.put(session_uuid.*, session) catch {
             r.setStatus(.internal_server_error);
             errorPage(r, "internal Error");
             std.debug.print("alhamdo li Allah: Error creating session 'putting it in sessions StringHashMap'\n", .{});
@@ -80,7 +88,15 @@ fn startSession(r: zap.Request) Error!void {
         return Error.bismi_allah;
     };
 
-    sessions.put(session_uuid, Session{ .values = std.StringHashMap([512]u8).init(allocator) }) catch {
+    const session = allocator.create(Session) catch {
+        std.debug.print("alhamdo li Allah error while creating session object\n", .{});
+        r.setStatus(.not_found);
+        errorPage(r, "Internal Error");
+        return;
+    };
+    session.* = Session{ .values = std.StringHashMap([512]u8).init(allocator) };
+
+    sessions.put(session_uuid, session) catch {
         r.setStatus(.internal_server_error);
         errorPage(r, "internal Error");
         std.debug.print("alhamdo li Allah: Error creating session 'putting it in sessions StringHashMap'\n", .{});
@@ -170,11 +186,19 @@ fn requestAccount(r: zap.Request) void {
     if (null == r.path) return;
     if (std.mem.eql(u8, r.path.?, "/account") or std.mem.eql(u8, r.path.?, "/account/")) {
         if (getSession(r)) |session| {
-            std.debug.print("account_name {any}\n", .{session.values.get("account_name")});
+            std.debug.print("account_name '{s}'\n", .{session.values.get("account_name") orelse [_]u8{0} ** 512});
             if (session.values.get("account_name")) |account_name| {
-                const body_template = "<p>assalamo alaykom {s}</p>";
-                var body_buffer: [body_template.len + 64 + 5]u8 = undefined;
-                const filled_buffer = std.fmt.bufPrint(&body_buffer, body_template, .{account_name}) catch "Internal Error";
+                // const body_template = "<p>assalamo alaykom <b>{s}</b></p>";
+                const body_template = "assalamo alaykom {s}";
+                var body_buffer: [body_template.len + 512]u8 = undefined;
+
+                const filled_buffer = std.fmt.bufPrint(&body_buffer, body_template, .{account_name}) catch |e| {
+                    errorPage(r, "Internal Error");
+                    r.setStatus(.internal_server_error);
+                    std.debug.print("alhamdo li Allah Error: {s}\n", .{@errorName(e)});
+                    return;
+                };
+
                 std.debug.print("filled body buffer: '{s}'\n", .{filled_buffer});
                 simplePage(r, filled_buffer);
             } else {
@@ -265,7 +289,7 @@ fn login(r: zap.Request) void {
                     return;
                 };
                 std.debug.print("alhamdo li Allah will set session.account_name = {s}\n", .{account_name_buffer_for_hashmap_value});
-                std.debug.print("alhamdo li Allah got account_name {any}\n", .{session.?.values.get("account_name")});
+                std.debug.print("alhamdo li Allah got account_name {s}\n", .{session.?.values.get("account_name") orelse [_]u8{0} ** 512});
             }
 
             simplePage(r, "<p>connection info were correct</p>");
@@ -321,17 +345,6 @@ fn register(r: zap.Request) void {
     simplePage(r, "<p>alhamdo li Allah</p>");
 }
 
-fn onRequest2(r: zap.Request) void {
-    r.setCookie(.{ .name = "bismi_allah_cookie", .value = "bismi_allah" }) catch {
-        std.debug.print("alhamdo li Allah Error setting the cookie\n", .{});
-    };
-
-    simplePage(r,
-        \\  <p>la ilaha illa Allah</p>
-        \\  <p>Mohammed is the messenger of Allah</p>
-    );
-}
-
 pub fn main() !void {
     std.debug.print("بسم الله الرحمن الرحيم\n", .{});
 
@@ -339,7 +352,7 @@ pub fn main() !void {
     defer _ = gpa.deinit();
     allocator = gpa.allocator();
 
-    sessions = std.AutoHashMap(uuid.urn.Urn, Session).init(allocator);
+    sessions = std.AutoHashMap(uuid.urn.Urn, *Session).init(allocator);
     defer sessions.deinit();
 
     accounts = std.AutoHashMap([64]u8, [64]u8).init(allocator);
