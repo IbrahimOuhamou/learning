@@ -1,0 +1,24 @@
+//بسم الله الرحمن الرحيم
+//la ilaha illa Allah Mohammed Rassoul Allah
+.{
+    .name = "task-tree",
+    .version = "0.0.1",
+
+    .minimum_zig_version = "0.12.0",
+
+    .dependencies = .{
+        .@"raylib-zig" = .{
+            .url = "https://github.com/Not-Nik/raylib-zig/archive/18a7daa631913447d06737f0faf3c9954ecac387.tar.gz",
+            .hash = "1220f7489d0946ca7ea7ffec154041cb862066491f789c2a5f823191ed325d4c37ef",
+        },
+    },
+
+    .paths = .{
+        "",
+        //"build.zig",
+        //"build.zig.zon",
+        //"src",
+        //"LICENSE",
+        //"README.md",
+    },
+}
