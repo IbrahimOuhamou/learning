@@ -45,12 +45,12 @@ export default function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <button onClick={() => setOrderAscending(!orderAscending)}>toggle sort order</button>
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
         <ol>
-          بسم الله الرحمن الرحيم
+          <p>بسم الله الرحمن الرحيم</p>
+          <button onClick={() => setOrderAscending(!orderAscending)}>toggle sort order</button>
           {moves}
         </ol>
       </div>
