@@ -9,6 +9,7 @@ export default function Game() {
   const [currentMove, setCurrentMove] = useState(0);
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
+  let [orderAscending, setOrderAscending] = useState(false);
 
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
@@ -20,7 +21,7 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const moves = history.map((squares, move) => {
+  let moves = history.map((squares, move) => {
     if(move === history.length - 1) {
       return <li> you are at move {move} </li>
     }
@@ -38,15 +39,18 @@ export default function Game() {
       </li>
     )
   })
+  
+  if (!orderAscending) moves.reverse();
 
   return (
     <div className="game">
       <div className="game-board">
+        <button onClick={() => setOrderAscending(!orderAscending)}>toggle sort order</button>
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
         <ol>
-          <li>بسم الله الرحمن الرحيم</li>
+          بسم الله الرحمن الرحيم
           {moves}
         </ol>
       </div>
@@ -75,10 +79,10 @@ function Board({xIsNext, squares, onPlay}) {
   }
 
   let rows = [];
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 9; i+=3) {
     let row_squares = [];
     for (let j = i; j < i + 3; j++) {
-      row_squares[j] = <Square value={squares[j]} onSquareClick={() => handleClick(j)}></Square>
+      row_squares[j - i] = <Square value={squares[j]} onSquareClick={() => handleClick(j)}></Square>
     }
 
     rows[i] = <div className="board-row"> {row_squares} </div>
