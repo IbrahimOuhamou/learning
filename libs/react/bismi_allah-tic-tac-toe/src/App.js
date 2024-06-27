@@ -1,17 +1,39 @@
 //بسم الله الرحمن الرحيم
 //la ilaha illa Allah Mohammed Rassoul Allah
-import logo from './logo.svg';
+
 import './bismi_allah.css';
 import { useState } from 'react';
 
 export default function Game() {
-  const [xIsNext, setXIsNext] = useState(true);
   const [history, setHistory] = useState([Array(9).fill(null)]);
-  const currentSquares = history[history.length - 1];
+  const [currentMove, setCurrentMove] = useState(0);
+  const currentSquares = history[currentMove];
+  const xIsNext = currentMove % 2 === 0;
 
   function handlePlay(nextSquares) {
-    
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
   }
+
+  function jumpTo(nextMove) {
+    setCurrentMove(nextMove);
+  }
+
+  const moves = history.map((squares, move) => {
+    let description;
+    if (move > 0) {
+      description = 'Go to move #' + move;
+    } else {
+      description = 'Go to start';
+    }
+
+    return (
+      <li key={move}> 
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    )
+  })
 
   return (
     <div className="game">
@@ -21,6 +43,7 @@ export default function Game() {
       <div className="game-info">
         <ol>
           <li>بسم الله الرحمن الرحيم</li>
+          {moves}
         </ol>
       </div>
     </div>
@@ -30,16 +53,26 @@ export default function Game() {
 function Board({xIsNext, squares, onPlay}) {
 
   function handleClick(i) {
-    if(squares[i] || calculateWinner(squares)) return
+    if(squares[i] || calculateWinner(squares)) return;
 
-    const nextSquares = squares.slice()
-    nextSquares[i] = xIsNext ? 'X' : 'O'
+    const nextSquares = squares.slice();
+    nextSquares[i] = xIsNext ? 'X' : 'O';
 
-    onPlay(nextSquares)
+    onPlay(nextSquares);
+  }
+
+  const winner = calculateWinner(squares);
+  let status;
+
+  if (winner) {
+    status = 'Winner: ' + winner;
+  } else {
+    status = 'Next player: ' + (xIsNext ? 'X' : 'O')
   }
 
   return (
     <>
+      <div className="status">{status}</div>
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -83,6 +116,10 @@ function calculateWinner(squares) {
 
 //in the name of Allah
 function Square({value, onSquareClick}) {
-  return <button className="square" onClick={onSquareClick}>{value}</button>;
+  return (
+    <button className="square" onClick={onSquareClick}>
+      {value}
+    </button>
+  );
 }
 
