@@ -27,11 +27,25 @@ export default function Game() {
     }
 
     let description;
-    if (move > 0 && move < history.length - 1) {
-      description = 'Go to move #' + move;
-    } else {
+    // if (move > 0 && move < history.length - 1) {
+    //   description = 'Go to move #' + move;
+    // } else {
+    //   description = 'Go to start';
+    // }
+
+    // description = (0 === move) ? ('Go to start') : ('Go to move #' + move);
+    if (move === 0) {
       description = 'Go to start';
+    } else {
+      let move_pos;
+
+      for(let i = 0; i < 9; i++) {
+        if(null !== )
+      }
+
+      description = 'Go to move #' + move + ' at col:' + (move_pos % 3) + ' row:' + 0;
     }
+
 
     return (
       <li key={move}> 
