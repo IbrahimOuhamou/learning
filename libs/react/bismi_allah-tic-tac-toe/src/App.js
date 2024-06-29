@@ -40,7 +40,12 @@ export default function Game() {
       let move_pos;
 
       for(let i = 0; i < 9; i++) {
-        if(null !== )
+        //if(null !== history[move][i] && null === history[move][i - 1]) {
+          // alert(i + 1)
+        // } else {
+        //}
+        alert(i + ':' + history[currentMove][i])
+        if(null === history[move][i]) alert('alhamdo li Allah ' + i + ' is null')
       }
 
       description = 'Go to move #' + move + ' at col:' + (move_pos % 3) + ' row:' + 0;
