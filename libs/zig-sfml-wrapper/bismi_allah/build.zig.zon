@@ -6,8 +6,9 @@
 
     .dependencies = .{
         .sfml = .{
-            .url = "https://github.com/Guigui220D/zig-sfml-wrapper/archive/30e70a73e04bbca0711132423acc7303bd3f613a.tar.gz",
-            .hash = "1220a30d55f2186e94bf32d0697209d0cbbab5c02d301086b586d7db6026550a8a32",
+            .url = "https://github.com/Guigui220D/zig-sfml-wrapper/archive/bf45217266fcbcda3075b0dad78edcdd6a0808bb.tar.gz",
+            //.hash = "1220a07b058513a54435752cffb87f50e9360037aa324b662c5ab7953ae8a2d2d23d",
+            .hash = "1220f0a3ec994b5fa60f9c81f03e71a83146357b8d48c4cd3663b4f9b60ac4466fd3",
         },
     },
 
