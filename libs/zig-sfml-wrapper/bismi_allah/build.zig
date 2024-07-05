@@ -17,9 +17,12 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(exe);
 
-    const dep = b.dependency("sfml", .{}).module("sfml");
-    exe.root_module.addImport("sfml", dep);
+    const sfml_dep = b.dependency("sfml", .{}).module("sfml");
+    exe.root_module.addImport("sfml", sfml_dep);
     sfml.link(exe);
+
+    const hb = b.dependency("harfbuzz", .{});
+    exe.linkLibrary(hb.artifact("harfbuzz"));
 
     const run_cmd = b.addRunArtifact(exe);
 

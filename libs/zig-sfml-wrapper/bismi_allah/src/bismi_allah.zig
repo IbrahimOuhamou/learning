@@ -2,6 +2,10 @@
 // la ilaha illa Allah Mohammed Rassoul Allah
 const std = @import("std");
 
+const c = @cImport({
+    @cInclude("harfbuzz/hb.h");
+});
+
 const sf = struct {
     const sfml = @import("sfml");
     usingnamespace sfml;
@@ -12,7 +16,7 @@ const sf = struct {
 };
 
 const font_data = @embedFile("res/KacstDigital.ttf");
-const texture_data = @embedFile("res/quran.jpg");
+const texture_data = @embedFile("res/warsh-1-scaled.jpg");
 
 pub fn main() !void {
     std.debug.print("بسم الله الرحمن الرحيم", .{});
@@ -23,8 +27,16 @@ pub fn main() !void {
     window.setSize(.{ .x = 800, .y = 600 });
 
     var font = try sf.graphics.Font.createFromMemory(font_data);
-    // var font = try sf.graphics.Font.createFromFile("res/Clickuper.ttf");
     defer font.destroy();
+
+    const buffer = c.hb_buffer_create().?;
+    c.hb_buffer_set_direction(buffer, c.HB_DIRECTION_RTL);
+    c.hb_buffer_set_script(buffer, c.HB_SCRIPT_ARABIC);
+    c.hb_buffer_set_language(buffer, c.hb_language_from_string("ar", 2));
+    c.hb_buffer_add_utf8(buffer, "بسم الله الرحمن الرحيم", 22, 0, -1);
+    defer c.hb_buffer_destroy(buffer);
+
+    std.debug.print("alhamdo li Allah {s}\n", .{buffer});
 
     // var basmala_text = try sf.graphics.Text.createWithTextUnicode(sf.toUnicodeComptime("بسم الله الرحمن الرحيم"), font, 32);
     var basmala_text = try sf.graphics.Text.createWithTextUnicode(sf.toUnicodeComptime("\u{FEEA}\u{FEE0}\u{FEDF}\u{FE8D} \u{FEE2}\u{FEB4}\u{FE91}"), font, 32);
@@ -33,10 +45,11 @@ pub fn main() !void {
     // var quran_texture = try sf.graphics.Texture.createFromMemory(texture_data, .{ .top = 0, .left = 0, .width = 0, .height = 0 });
     var quran_texture = try sf.graphics.Texture.createFromMemory(texture_data, .{ .top = 0, .left = 0, .width = 0, .height = 0 });
     defer quran_texture.destroy();
+    quran_texture.setSmooth(true);
 
     var quran_sprite = try sf.graphics.Sprite.createFromTexture(quran_texture);
     defer quran_sprite.destroy();
-    // quran_sprite.setScale(.{ .x = 0.3, .y = 0.5 });
+    quran_sprite.setScale(.{ .x = 0.5, .y = 0.2 });
     //quran_sprite.setTextureRect(.{ .top = 0, .left = 0, .width = 500, .height = 100 });
 
     var bg_color = sf.graphics.Color.Black;

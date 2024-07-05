@@ -7,9 +7,18 @@
     .dependencies = .{
         .sfml = .{
             .url = "https://github.com/Guigui220D/zig-sfml-wrapper/archive/bf45217266fcbcda3075b0dad78edcdd6a0808bb.tar.gz",
-            //.hash = "1220a07b058513a54435752cffb87f50e9360037aa324b662c5ab7953ae8a2d2d23d",
             .hash = "1220f0a3ec994b5fa60f9c81f03e71a83146357b8d48c4cd3663b4f9b60ac4466fd3",
         },
+
+        .harfbuzz = .{
+            .url = "https://github.com/hexops/harfbuzz/archive/cecd5c8d34d343c0ab8b4dc6d2b0e2c08da52936.tar.gz",
+            .hash = "1220557b115b730afbece2ff4a073b6dc095d143318ba2f6b258cee13f580dd7e8ba",
+        },
+
+        // .harfbuzz = .{
+        //     .url = "https://github.com/mitchellh/zig-build-harfbuzz/archive/31da1cd1391dd8cfa155d8cc6b8e500bafaa3f8c.tar.gz",
+        //     .hash = "1220e9ef945fb4a9a1d352aa0755186aac6f2c0fc7d7840f62987978979d45a41f05",
+        // },
     },
 
     .paths = .{
