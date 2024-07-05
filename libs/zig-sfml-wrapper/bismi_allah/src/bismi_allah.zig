@@ -21,7 +21,7 @@ const texture_data = @embedFile("res/warsh-1-scaled.jpg");
 pub fn main() !void {
     std.debug.print("بسم الله الرحمن الرحيم", .{});
 
-    var window = try sf.graphics.RenderWindow.create(.{ .x = 800, .y = 600 }, 32, "bismi Allah", sf.window.Style.defaultStyle, null);
+    var window = try sf.graphics.RenderWindow.create(.{ .x = 1792, .y = 2560 }, 1, "bismi Allah", sf.window.Style.defaultStyle, null);
     defer window.destroy();
     window.setFramerateLimit(60);
     window.setSize(.{ .x = 800, .y = 600 });
@@ -41,6 +41,7 @@ pub fn main() !void {
     // var basmala_text = try sf.graphics.Text.createWithTextUnicode(sf.toUnicodeComptime("بسم الله الرحمن الرحيم"), font, 32);
     var basmala_text = try sf.graphics.Text.createWithTextUnicode(sf.toUnicodeComptime("\u{FEEA}\u{FEE0}\u{FEDF}\u{FE8D} \u{FEE2}\u{FEB4}\u{FE91}"), font, 32);
     defer basmala_text.destroy();
+    basmala_text.setFillColor(sf.Color.Black);
 
     // var quran_texture = try sf.graphics.Texture.createFromMemory(texture_data, .{ .top = 0, .left = 0, .width = 0, .height = 0 });
     var quran_texture = try sf.graphics.Texture.createFromMemory(texture_data, .{ .top = 0, .left = 0, .width = 0, .height = 0 });
@@ -49,7 +50,7 @@ pub fn main() !void {
 
     var quran_sprite = try sf.graphics.Sprite.createFromTexture(quran_texture);
     defer quran_sprite.destroy();
-    quran_sprite.setScale(.{ .x = 0.5, .y = 0.2 });
+    // quran_sprite.setScale(.{ .x = 0.5, .y = 0.2 });
     //quran_sprite.setTextureRect(.{ .top = 0, .left = 0, .width = 500, .height = 100 });
 
     var bg_color = sf.graphics.Color.Black;
