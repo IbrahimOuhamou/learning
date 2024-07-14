@@ -17,9 +17,14 @@ pub fn build(b: *std.Build) void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
+    const exc_name = b.option([]const u8, "n", "exercice number") orelse "";
+
+    var name_buffer: [64]u8 = [1]u8{0} ** 64;
+    const src_name = std.fmt.bufPrint(&name_buffer, "src/bismi_allah{s}.zig", .{exc_name}) catch "src/bismi_allah.zig";
+
     const exe = b.addExecutable(.{
         .name = "bismi_allah_glfw",
-        .root_source_file = b.path("src/bismi_allah.zig"),
+        .root_source_file = b.path(src_name),
         .target = target,
         .optimize = optimize,
     });
@@ -58,7 +63,7 @@ pub fn build(b: *std.Build) void {
     run_step.dependOn(&run_cmd.step);
 
     const exe_unit_tests = b.addTest(.{
-        .root_source_file = b.path("src/bismi_allah.zig"),
+        .root_source_file = b.path(src_name),
         .target = target,
         .optimize = optimize,
     });
