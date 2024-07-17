@@ -1,0 +1,8 @@
+
+[site]
+url = "http://localhost"
+name = ""
+description = ""
+
+[authors]
+ibrahimouhamou = { name = "IbrahimOuhamou" }
