@@ -3,7 +3,7 @@
 { lib
 , stdenv
 , fetchgit
-, zig_0_13
+, zig
 , SDL2
 , SDL2_ttf
 , pkg-config
@@ -11,13 +11,13 @@
 
 stdenv.mkDerivation rec {
   pname = "popping-dikr";
-  version = "1.1.1";
+  version = "1.1.2";
 
   src = fetchgit {
     url = "https://github.com/muslimDevCommunity/PoppingDikr.git";
     #url = "https://github.com/IbrahimOuhamou/popping-dikr.git";
-    rev = "3c642eb2ba5bf057db37b5a5b385e1ca79673ee2";
-    hash = "sha256-EJAcR04A4SEXE7VaCWW0xvGtxSWtNrrofrRHj5Gi+E0=";
+    rev = "78239ee4aef80ab3d4aa0cea0602ee5a7b78136c";
+    hash = "sha256-6uxvMTmRcGncVletEX2+GiIrZCX1gnG9lEp3ciwfL+A=";
     fetchSubmodules = true;
   };
 
@@ -25,19 +25,14 @@ stdenv.mkDerivation rec {
     pkg-config
     SDL2.dev
     SDL2_ttf
-    zig_0_13.hook
+    zig.hook
   ];
-
-  postInstallPhase = ''
-    mv $out/dikr $out/${pname}
-    mv zig-out/bin/settings $out/${pname}-settings
-  '';
 
   meta = with lib; {
     description = "Dikr app that shows itself every now and then";
     homepage = "https://github.com/muslimDevCommunity/PoppingDikr";
     # license = licenses.mit;
     mainProgram = "popping-dikr";
-    inherit (zig_0_13.meta) platforms;
+    inherit (zig.meta) platforms;
   };
 }

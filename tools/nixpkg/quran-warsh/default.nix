@@ -3,7 +3,7 @@
 { lib
 , stdenv
 , fetchgit
-, zig_0_13
+, zig
 , csfml
 }:
 
@@ -19,7 +19,7 @@ stdenv.mkDerivation {
 
   nativeBuildInputs = [
     csfml
-    zig_0_13.hook
+    zig.hook
   ];
 
   meta = with lib; {
@@ -27,6 +27,6 @@ stdenv.mkDerivation {
     homepage = "https://github.com/muslimDevCommunity/quran-warsh";
     # license = licenses.mit;
     mainProgram = "quran-warsh";
-    inherit (zig_0_13.meta) platforms;
+    inherit (zig.meta) platforms;
   };
 }
