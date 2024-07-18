@@ -1,0 +1,11 @@
+/* بسم الله الرحمن الرحيم */
+/* la ilaha illa Allah Mohammed Rassoul Allah */
+
+:root {
+    --bismi_allah_var: blue;
+}
+
+body {
+    background-color: var(--bismi_allah_var);
+}
+
