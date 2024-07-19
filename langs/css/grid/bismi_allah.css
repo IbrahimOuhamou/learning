@@ -1,10 +1,6 @@
 /* بسم الله الرحمن الرحيم */
 /* la ilaha illa Allah Mohammed Rassoul Allah */
 
-body {
-    text-align: center;
-}
-
 .bismi_allah_grid {
     display: grid;
     gap: 1px;
@@ -13,6 +9,7 @@ body {
 .bismi_allah_grid > * {
     justify-content: center;
     align-items: center;
+    text-align: center;
 
     background-color: grey;
     border: 1px solid;
@@ -24,13 +21,6 @@ body {
 }
 
 #bismi_allah_grid_column_and_row {
+    display: grid;
     grid-template-columns: 3fr 1fr;
 }
-
-#bismi_allah_area:nth-child(2) {
-    grid-area: bismiAllah;
-}
-#bismi_allah_area {
-    grid-template-areas: 'bismiAllah bismiAllah bismiAllah';
-}
-
