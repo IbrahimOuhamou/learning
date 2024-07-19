@@ -1,0 +1,29 @@
+//بسم الله الرحمن الرحيم
+//la ilaha illa Allah Mohammed Rassoul Allah
+.{
+    .name = "bismi_allah_zig-sfml-gl",
+
+    .version = "0.0.0",
+
+    .dependencies = .{
+        .sfml = .{
+            .url = "https://github.com/Guigui220D/zig-sfml-wrapper/archive/bf45217266fcbcda3075b0dad78edcdd6a0808bb.tar.gz",
+            .hash = "1220f0a3ec994b5fa60f9c81f03e71a83146357b8d48c4cd3663b4f9b60ac4466fd3",
+        },
+
+        // .zigglgen = .{
+        //     .url = "https://github.com/castholm/zigglgen/releases/download/v0.2.3/zigglgen.tar.gz",
+        //     .hash = "1220f4188a5e1bdbb15fd50e9ea322c0721384eeba9bc077e4179b0b0eeaa7fe4ad9",
+        // },
+        .zgl = .{
+            .url = "https://github.com/ziglibs/zgl/archive/f04d08def7ab221dd6a907c824067b362ca443e6.tar.gz",
+            .hash = "1220a64a925ced61755f0f3b56bc4f6540b1cd5605b9f8ae82f6d57bcda78e5db7df",
+        },
+    },
+
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
