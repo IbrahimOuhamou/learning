@@ -8,6 +8,11 @@ const c = @cImport({
     @cInclude("GLFW/glfw3.h");
 });
 
+var vertex_array_buffer = undefined;
+var vertex_object_array = undefined;
+
+var vertecies: [3]c.GLfloat = undefined;
+
 pub fn main() !void {
     std.debug.print("بسم الله الرحمن الرحيم\n", .{});
 

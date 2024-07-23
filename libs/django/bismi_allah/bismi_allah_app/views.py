@@ -9,5 +9,8 @@ def bismi_allah(request):
 
 def bismi_allah_todos(request):
     items = TodoItem.objects.all()
+    with open('bismi_allah_file', 'w') as f:
+        f.write('la ilaha illa Allah Mohammed Rassoul Allah')
+        f.close()
     return render(request, "todos.html", {"todos": items})
 
