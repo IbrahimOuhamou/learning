@@ -1,0 +1,35 @@
+/* بسم الله الرحمن الرحيم */
+/* la ilaha illa Allah Mohammed Rassoul Allah */
+
+$text_color: white;
+$text_bg: darkgrey;
+
+// @mixin bismi_allah_grid {
+%bismi_allah_grid {
+  display: grid;
+  gap: 1px;
+
+
+  > * {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    color: $text_color;
+    background-color: $text_bg;
+    border: 1px solid;
+  }
+}
+
+#bismi_allah_grid_auto_fit {
+  // @include bismi_allah_grid;
+  @extend %bismi_allah_grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+#bismi_allah_grid_column_and_row {
+  // @include bismi_allah_grid;
+  @extend %bismi_allah_grid;
+  grid-template-columns: 3fr 1fr;
+}
+

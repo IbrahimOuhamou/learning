@@ -1,0 +1,21 @@
+@charset "UTF-8";
+/* بسم الله الرحمن الرحيم */
+/* la ilaha illa Allah Mohammed Rassoul Allah */
+#bismi_allah_grid_auto_fit, #bismi_allah_grid_column_and_row {
+  display: grid;
+  gap: 1px; }
+  #bismi_allah_grid_auto_fit > *, #bismi_allah_grid_column_and_row > * {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    background-color: darkgrey;
+    border: 1px solid; }
+
+#bismi_allah_grid_auto_fit {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+#bismi_allah_grid_column_and_row {
+  grid-template-columns: 3fr 1fr; }
+
+/*# sourceMappingURL=bismi_allah.css.map */
