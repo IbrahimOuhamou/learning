@@ -15,10 +15,19 @@ pub fn main() !void {
     var server = try addr.listen(.{ .reuse_port = true });
     defer server.deinit();
 
-    while (true) {
+    accept: while (true) {
         const client = try server.accept();
         defer client.stream.close();
         std.debug.print("alhamdo li Allah: client addr: '{any}', client stream: '{any}'\n", .{ client.address, client.stream });
+
+        var http_server = std.http.Server.init(client, &bismi_allah_buffer);
+        while (http_server.state == .ready) {
+            var request = http_server.receiveHead() catch |err| {
+                std.debug.print("error: {s}\n", .{@errorName(err)});
+                continue :accept;
+            };
+            try request.respond("bismi Allah", .{ .status = .ok });
+        }
 
         const bytes_read = try client.stream.read(&bismi_allah_buffer);
         std.debug.print("alahmdo li Allah read {d} bytes\n", .{bytes_read});
