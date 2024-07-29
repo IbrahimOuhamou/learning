@@ -11,10 +11,11 @@ const c = @cImport({
 var vertex_buffer_object: c.GLuint = undefined;
 var vertex_array_object: c.GLuint = undefined;
 
-var vertecies: [9]c.GLfloat = [_]c.GLfloat{
-    -0.8, -0.8, 0.0,
+var vertecies: [12]c.GLfloat = [_]c.GLfloat{
+    -0.8, -0.8, -0.5,
     0.8,  -0.8, 0.0,
     0.0,  0.8,  0.0,
+    0.0,  1.0,  0.0,
 };
 
 const vertex_shader_source =
@@ -125,7 +126,7 @@ pub fn main() !void {
         c.glUseProgram(shader_program);
         c.glBindVertexArray(vertex_array_object);
 
-        c.glDrawArrays(c.GL_TRIANGLES, 0, 3);
+        c.glDrawArrays(c.GL_TRIANGLES, 0, vertecies.len / 3);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         c.glfwSwapBuffers(window);
