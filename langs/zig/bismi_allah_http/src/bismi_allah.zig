@@ -4,6 +4,7 @@ const std = @import("std");
 const net = std.net;
 
 const addr = net.Address.initIp4(.{ 127, 0, 0, 1 }, 4000);
+const html_page = @embedFile("bismi_allah.html");
 
 pub fn main() !void {
     std.debug.print("بسم الله الرحمن الرحيم\n", .{});
@@ -26,7 +27,13 @@ pub fn main() !void {
                 std.debug.print("error: {s}\n", .{@errorName(err)});
                 continue :accept;
             };
-            try request.respond("bismi Allah", .{ .status = .ok });
+
+            try request.respond(html_page, .{
+                .status = .ok,
+                .extra_headers = &.{
+                    .{ .name = "Content-Type", .value = "text/html; charset=utf-8" },
+                },
+            });
         }
 
         const bytes_read = try client.stream.read(&bismi_allah_buffer);
