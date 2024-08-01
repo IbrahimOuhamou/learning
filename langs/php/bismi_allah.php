@@ -1,24 +1,16 @@
 <?php
 //in the name of Allah
 
-echo '
-<!DOCTYPE html>
-<html>
-<head>
-    <title>in the name of Allah</title>
-</head>
-<body>';
+echo "بسم الله الرحمن الرحيم\n";
 
-echo '<p>in the name of Allah</p>' . "\n";
 
-/*
-echo '<pre>';
-print_r($_SERVER);
-echo '</pre>';
- */
+$row = array();
+$row['Performance'] = 'OUI';
 
-echo '</body>
-</html>
-';
+bismiAllahFunc($row['Performance'] == 'NON');
 
-?>
+function bismiAllahFunc(bool $condition) {
+    var_dump($condition);
+}
+
+
