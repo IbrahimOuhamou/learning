@@ -5,24 +5,24 @@
 // App\{dir_name}: php standards
 namespace App\Controller;
 
-use App\Model\BismiAllah;
+use App\Repository\BismiAllahRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route('/api/')]
 class ApiController extends AbstractController {
-    #[Route('api/json')]
-    public function getJson(): Response {
-        $bismi_allah_data = [
-            new BismiAllah(1, 'bismi_allah_1'),
-            new BismiAllah(2, 'bismi_allah_2'),
-            new BismiAllah(3, 'bismi_allah_3'),
-            [
-                'id' => 4,
-                'name' => 'bismi_allah_3',
-            ],
-        ];
+
+    #[Route('json')]
+    public function getJson(BismiAllahRepository $bismi_allah_repository): Response {
+
+        $bismi_allah_data = $bismi_allah_repository->findAll();
 
         return $this->json($bismi_allah_data);
+    }
+
+    #[Route('{id}', methods: ['GET'])]
+    public function getById(int $id, BismiAllahRepository $bismi_allah_repository): Response {
+        return $this->json($bismi_allah_repository->getId($id)); 
     }
 }
