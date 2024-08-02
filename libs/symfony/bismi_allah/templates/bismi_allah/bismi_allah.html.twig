@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+{% block body %} 
+{# بسم الله الرحمن الرحيم #}
+{# la ilaha illa Allah Mohammed Rassoul Allah #}
+<h1>
+بسم الله الرحمن الرحيم
+<br/>
+{{ bismi_allah_var }}
+</h1>
+<p>
+    {% if bismi_allah_var > 10 %}
+        subhana Allah bismi_allah_var > 10
+    {% else %}
+        subhana Allah bismi_allah_var < 10
+    {% endif %}
+</p>
+
+<table>
+    <tr>
+        <th>id</th>
+        <th>name</th>
+    <tr>
+    <tr>
+        <td> {{ bismi_allah_asso_arr.id }} </td>
+        <td> {{ bismi_allah_asso_arr.name|upper|lower|title }} </td>
+    </tr>
+</table>
+{% endblock %}
