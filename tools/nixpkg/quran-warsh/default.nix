@@ -15,6 +15,9 @@ stdenv.mkDerivation {
     url = "https://github.com/muslimDevCommunity/quran-warsh.git";
     rev = "f7a60ad6e339196b9a9ac9803f16bd685f0c9c9f";
     hash = "sha256-QXqcFZVMIRPAISA3ezEsleK8oTmhVgb6TWGW6C6nPBc=";
+    postFetch = ''
+      zig build --fetch
+    '';
   };
 
   nativeBuildInputs = [
