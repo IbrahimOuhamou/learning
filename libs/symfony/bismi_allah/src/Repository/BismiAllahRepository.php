@@ -21,7 +21,8 @@ class BismiAllahRepository {
         ];
     }
 
-    public function getId(int $id): BismiAllah {
+    public function getId(int $id): ?BismiAllah {
+        if($id < 0) return null;
         return new BismiAllah($id, 'bismi_allah_' . $id);
     }
 }
