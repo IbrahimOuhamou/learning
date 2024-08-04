@@ -1,43 +1,48 @@
 //بسم الله الرحمن الرحيم
 //la ilaha illa Allah Mohammed Rassoul Allah
 const std = @import("std");
-const net = std.net;
+const dvui = @import("dvui");
 
-const addr = net.Address.initIp4(.{ 127, 0, 0, 1 }, 4000);
-const html_page = @embedFile("bismi_allah.html");
+const SDLBackend = @import("SDLBackend");
+const c = @cImport({
+    @cInclude("SDL2/SDL.h");
+});
+
+var window: *c.SDL_Window = undefined;
+var renderer: *c.SDL_Renderer = undefined;
 
 pub fn main() !void {
     std.debug.print("بسم الله الرحمن الرحيم\n", .{});
 
-    var bismi_allah_buffer: [1024]u8 = undefined;
+    if (c.SDL_Init(c.SDL_INIT_VIDEO) < 0) {
+        std.debug.print("alhamdo li Allah Couldn't initialize SDL: {s}\n", .{c.SDL_GetError()});
+        return error.BackendError;
+    }
 
-    std.debug.print("alhamdo li Allah port: {d}\n", .{addr.getPort()});
+    window = c.SDL_CreateWindow("alhamdo li Allah DVUI Ontop Example", c.SDL_WINDOWPOS_UNDEFINED, c.SDL_WINDOWPOS_UNDEFINED, @as(c_int, @intCast(640)), @as(c_int, @intCast(480)), c.SDL_WINDOW_ALLOW_HIGHDPI | c.SDL_WINDOW_RESIZABLE) orelse {
+        std.debug.print("Failed to open window: {s}\n", .{c.SDL_GetError()});
+        return error.BackendError;
+    };
+    _ = c.SDL_SetHint(c.SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    defer c.SDL_DestroyWindow(window);
 
-    var server = try addr.listen(.{ .reuse_port = true });
-    defer server.deinit();
+    renderer = c.SDL_CreateRenderer(window, -1, c.SDL_RENDERER_PRESENTVSYNC) orelse {
+        std.debug.print("alhamdo li Allah Failed to create renderer: {s}\n", .{c.SDL_GetError()});
+        return error.BackendError;
+    };
+    _ = c.SDL_SetRenderDrawBlendMode(renderer, c.SDL_BLENDMODE_BLEND);
+    defer c.SDL_DestroyRenderer(renderer);
 
-    accept: while (true) {
-        const client = try server.accept();
-        defer client.stream.close();
-        std.debug.print("alhamdo li Allah: client addr: '{any}', client stream: '{any}'\n", .{ client.address, client.stream });
-
-        var http_server = std.http.Server.init(client, &bismi_allah_buffer);
-        while (http_server.state == .ready) {
-            var request = http_server.receiveHead() catch |err| {
-                std.debug.print("error: {s}\n", .{@errorName(err)});
-                continue :accept;
-            };
-
-            try request.respond(html_page, .{
-                .status = .ok,
-                .extra_headers = &.{
-                    .{ .name = "Content-Type", .value = "text/html; charset=utf-8" },
+    main_loop: while (true) {
+        var event: c.SDL_Event = undefined;
+        while (c.SDL_PollEvent(&event) != 0) {
+            switch (event) {
+                c.SDL_QUIT => {
+                    break :main_loop;
                 },
-            });
+                c.SDL_KEYDOWN => {},
+                else => {},
+            }
         }
-
-        const bytes_read = try client.stream.read(&bismi_allah_buffer);
-        std.debug.print("alahmdo li Allah read {d} bytes\n", .{bytes_read});
-        std.debug.print("alahmdo li Allah recieved:\n{s}\n", .{bismi_allah_buffer[0..bytes_read]});
     }
 }
