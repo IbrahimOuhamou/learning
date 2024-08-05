@@ -8,6 +8,9 @@ const c = @cImport({
     @cInclude("SDL2/SDL.h");
 });
 
+var gpa_instance = std.heap.GeneralPurposeAllocator(.{}){};
+const gpa = gpa_instance.allocator();
+
 var window: *c.SDL_Window = undefined;
 var renderer: *c.SDL_Renderer = undefined;
 
@@ -33,16 +36,41 @@ pub fn main() !void {
     _ = c.SDL_SetRenderDrawBlendMode(renderer, c.SDL_BLENDMODE_BLEND);
     defer c.SDL_DestroyRenderer(renderer);
 
+    var backend = SDLBackend{ .window = @as(*c.SDL_Window, @ptrCast(window)), .renderer = @as(*c.SDL_Renderer, @ptrCast(renderer)) };
+
+    var win = try dvui.Window.init(@src(), 0, gpa, backend.backend());
+    defer win.deinit();
+
     main_loop: while (true) {
+        try win.begin(std.time.nanoTimestamp());
+
         var event: c.SDL_Event = undefined;
         while (c.SDL_PollEvent(&event) != 0) {
-            switch (event) {
+            switch (event.type) {
                 c.SDL_QUIT => {
                     break :main_loop;
                 },
                 c.SDL_KEYDOWN => {},
                 else => {},
             }
+
+            if (try backend.addEvent(&win, event)) {} else {}
         }
+
+        backend.clear();
+        // dvui stuff
+        {
+            var flaot = try dvui.floatingWindow(@src(), .{}, .{ .min_size_content = .{ .w = 100, .h = 100 } });
+            defer flaot.deinit();
+
+            try dvui.windowHeader("la ilaha illa Allah Mohammed Rassoul Allah", "", null);
+
+            var scroll = try dvui.scrollArea(@src(), .{}, .{ .expand = .both, .color_fill = .{ .name = .fill_window } });
+            defer scroll.deinit();
+        }
+
+        _ = try win.end(.{});
+
+        backend.renderPresent();
     }
 }
