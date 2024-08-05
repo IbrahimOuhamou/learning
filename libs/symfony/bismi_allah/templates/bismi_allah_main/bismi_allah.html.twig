@@ -21,11 +21,16 @@
         <th>name</th>
         <th>link</th>
     <tr>
+
+    {% for bismi_allah in bismi_allah_arr %}
     <tr>
-        <td> {{ bismi_allah_asso_arr.id }} </td>
-        <td> {{ bismi_allah_asso_arr.name|upper|lower|title }} </td>
-        <td> <a href="{{ path('app_bismi_allah_show_id', { id: bismi_allah_asso_arr.id }) }}"> show page </a> </td>
+            <td> {{ bismi_allah.id }} </td>
+
+            <td> {{ bismi_allah.name|upper|lower|title }} </td>
+            <td> <a href="{{ path('app_bismi_allah_show_id', { id: bismi_allah.id }) }}"> show page </a> </td>
     </tr>
+    {% endfor %}
+
 </table>
 
 <img src="{{ asset('images/dikr_image.jpg') }}" alt="dikr image" />

@@ -14,13 +14,13 @@ class BismiAllahMainController extends AbstractController {
 
     #[Route('/')]
     public function bismi_allah(BismiAllahRepository $bismi_allah_repository): Response {
-        $bismi_allah_var = 99;
-        $bismi_allah_asso_arr = $bismi_allah_repository->getId(rand(0, 400)) ?? throw $this->createNotFoundException('could not find BismiAllah object');
+        $bismi_allah_var = rand(0, 100);
+        $bismi_allah_arr = $bismi_allah_repository->findAll() ?? throw $this->createNotFoundException('could not find BismiAllah object');
 
         // {controller_name}/{method_name}
         return $this->render('bismi_allah_main/bismi_allah.html.twig', [
             'bismi_allah_var' => $bismi_allah_var,
-            'bismi_allah_asso_arr' => $bismi_allah_asso_arr,
+            'bismi_allah_arr' => $bismi_allah_arr,
         ]);
     }
 }

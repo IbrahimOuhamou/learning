@@ -13,6 +13,11 @@
         {% endblock %}
     </head>
     <body>
+        <header>
+            {% block header %}
+                {{ include('bismi_allah_header.html.twig') }}
+            {% endblock %}
+        </header>
         {% block body %}{% endblock %}
     </body>
 </html>
