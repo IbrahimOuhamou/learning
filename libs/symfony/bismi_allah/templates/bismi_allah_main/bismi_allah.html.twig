@@ -28,7 +28,7 @@
             <td> {{ bismi_allah.id }} </td>
             <td> {{ bismi_allah.name|upper|lower|title }} </td>
             <td> {{ bismi_allah.status.value }} </td>
-            <td> <a href="{{ path('app_bismi_allah_show_id', { id: bismi_allah.id }) }}"> show page </a> </td>
+            <td> <a href="{{ path('bismi_allah_show_id', { id: bismi_allah.id }) }}"> show page </a> </td>
     </tr>
     {% endfor %}
 

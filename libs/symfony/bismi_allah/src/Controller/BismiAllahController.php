@@ -14,7 +14,7 @@ class BismiAllahController extends AbstractController {
     public function __construct(private BismiAllahRepository $bismi_allah_repository) {
     }
 
-    #[Route('{id<\d+>}', name: 'app_bismi_allah_show_id')]
+    #[Route('{id<\d+>}', name: 'bismi_allah_show_id')]
     public function showId(int $id): Response {
         $bismi_allah = $this->bismi_allah_repository->getId($id)
             ??

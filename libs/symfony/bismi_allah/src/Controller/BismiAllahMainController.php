@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class BismiAllahMainController extends AbstractController {
 
-    #[Route('/')]
+    #[Route('/', name: 'bismi_allah_main_homepage')]
     public function bismi_allah(BismiAllahRepository $bismi_allah_repository): Response {
         $bismi_allah_var = rand(0, 100);
         $bismi_allah_arr = $bismi_allah_repository->findAll() ?? throw $this->createNotFoundException('could not find BismiAllah object');
