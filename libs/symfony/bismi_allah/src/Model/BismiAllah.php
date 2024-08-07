@@ -1,4 +1,6 @@
 <?php
+// بسم الله الرحمن الرحيم
+// la ilaha illa Allah Mohammed Rassoul Allah
 
 namespace App\Model;
 use App\Model\BismiAllahStatusEnum;
@@ -15,4 +17,3 @@ class BismiAllah {
         };
     }
 }
-

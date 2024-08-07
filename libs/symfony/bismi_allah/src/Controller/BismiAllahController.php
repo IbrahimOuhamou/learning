@@ -26,5 +26,3 @@ class BismiAllahController extends AbstractController {
             ]);
     }
 }
-
-
