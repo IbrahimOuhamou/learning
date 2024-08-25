@@ -1,3 +1,5 @@
 bismi_allah
 bismi_allah.o
 bin
+zig-out/
+.zig-cache/
