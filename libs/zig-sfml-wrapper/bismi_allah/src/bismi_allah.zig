@@ -39,7 +39,8 @@ pub fn main() !void {
     std.debug.print("alhamdo li Allah {s}\n", .{buffer});
 
     // var basmala_text = try sf.graphics.Text.createWithTextUnicode(sf.toUnicodeComptime("بسم الله الرحمن الرحيم"), font, 32);
-    var basmala_text = try sf.graphics.Text.createWithTextUnicode(sf.toUnicodeComptime("\u{FEEA}\u{FEE0}\u{FEDF}\u{FE8D} \u{FEE2}\u{FEB4}\u{FE91}"), font, 32);
+    // var basmala_text = try sf.graphics.Text.createWithTextUnicode(sf.toUnicodeComptime("\u{FEEA}\u{FEE0}\u{FEDF}\u{FE8D} \u{FEE2}\u{FEB4}\u{FE91}"), font, 32);
+    var basmala_text = try sf.graphics.Text.createWithTextUnicode(sf.toUnicodeComptime("\u{FEEA}\u{FEDF}\u{FEDF}\u{FE8D} \u{FEAE}\u{FEB3}\u{FE99}\u{FE83}"), font, 32);
     defer basmala_text.destroy();
     basmala_text.setFillColor(sf.Color.Black);
 
