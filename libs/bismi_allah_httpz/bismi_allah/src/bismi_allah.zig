@@ -8,10 +8,13 @@ pub fn main() !void {
     const allocator = gpa.allocator();
 
     var server = try httpz.Server().init(allocator, .{ .port = 5882 });
+    defer {
+        server.stop();
+        server.deinit();
+    }
 
     // overwrite the default notFound handler
     server.notFound(notFound);
-
     // overwrite the default error handler
     server.errorHandler(errorHandler);
 
@@ -20,6 +23,9 @@ pub fn main() !void {
     // use get/post/put/head/patch/options/delete
     // you can also use "all" to attach to all methods
     router.get("/api/user/:id", getUser);
+    router.get("/", bismiAllah);
+
+    std.debug.print("alhamdo li Allah listening on port {d}\n", .{server.config.port.?});
 
     // start the server in the current thread, blocking.
     try server.listen();
@@ -33,6 +39,11 @@ fn getUser(req: *httpz.Request, res: *httpz.Response) !void {
     // (so long as it can be serialized using std.json.stringify)
 
     try res.json(.{ .id = req.param("id").?, .name = "Teg" }, .{});
+}
+
+fn bismiAllah(_: *httpz.Request, res: *httpz.Response) !void {
+    res.status = 200;
+    res.body = "<html>in the name of Allah</html>";
 }
 
 fn notFound(_: *httpz.Request, res: *httpz.Response) !void {
