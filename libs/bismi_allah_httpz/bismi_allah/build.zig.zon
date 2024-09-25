@@ -27,8 +27,8 @@
     // internet connectivity.
     .dependencies = .{
         .httpz = .{
-            .url = "https://github.com/karlseguin/http.zig/archive/5a681b4a34eb5f2c9dec37645f7742a61ffa9b76.tar.gz",
-            .hash = "122041d9c6961cd3c3436d7d47568855577365f35a5edf6ced3b9b29cae4a811998e",
+            .url = "https://github.com/karlseguin/http.zig/archive/7d2ddae87af9b110783085c0ea6b03985faa4584.tar.gz",
+            .hash = "12208c1f2c5f730c4c03aabeb0632ade7e21914af03e6510311b449458198d0835d6",
         },
     },
     .paths = .{
