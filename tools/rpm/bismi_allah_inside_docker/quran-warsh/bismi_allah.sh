@@ -17,11 +17,11 @@ echo "mkdir packages"
 mkdir packages
 
 echo "docker build . -t bismi_allah_build_rpm"
-docker build . -t bismi_allah_build_rpm --build-arg VERSION=1.0.0
+docker build . -f Dockerfile_rpm -t bismi_allah_build_rpm --build-arg VERSION=1.0.0
 echo "docker create --name bismi_allah_build_rpm bismi_allah_build_rpm"
 docker create --name bismi_allah_build_rpm bismi_allah_build_rpm
 echo "docker cp bismi_allah_build_rpm:/root/rpmbuild/RPMS/x86_64/* packages/"
-docker cp bismi_allah_build_rpm:/root/rpmbuild/RPMS/x86_64/* packages/
+docker cp bismi_allah_build_rpm:/root/rpmbuild/RPMS/x86_64 packages/
 # echo "docker rm -f bismi_allah_build_rpm"
 # docker rm -f bismi_allah_build_rpm
 
