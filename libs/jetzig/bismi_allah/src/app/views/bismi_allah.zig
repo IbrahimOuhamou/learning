@@ -1,3 +1,5 @@
+// بسم الله الرحمن الرحيم
+// la ilaha illa Allah Mohammed rassoul Allah
 const std = @import("std");
 const jetzig = @import("jetzig");
 

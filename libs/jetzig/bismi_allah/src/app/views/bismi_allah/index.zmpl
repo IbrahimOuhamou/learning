@@ -1,3 +1,1 @@
-<div>
-  <span>Content goes here</span>
-</div>
+<p>بسم الله الرحمن الرحيم</p>

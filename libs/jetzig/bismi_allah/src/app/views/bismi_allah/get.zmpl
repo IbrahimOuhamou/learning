@@ -1,3 +1,7 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+</head>
 <div>
-  <span>Content goes here</span>
+  <span>بسم الله الرحمن الرحيم</span>
 </div>
