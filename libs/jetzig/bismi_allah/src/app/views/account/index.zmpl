@@ -1,9 +1,11 @@
-
 @zig {
-    if(logged_in) {
-        @layout account/info(user_object: .user_object)
+    if(zmpl.get("logged_in").?.boolean.value) {
+        @partial account/info(id: .id, name: .name, email: .email)
+        <p>bismi Allah</p>
     } else {
-        <p>please consider logging in</p>
+        <p>
+            @partial link(href: "/account/login", text: "please consider logging in")
+        </p>
     }
 }
 
