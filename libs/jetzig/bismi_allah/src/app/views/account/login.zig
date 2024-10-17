@@ -18,15 +18,15 @@ pub fn post(request: *jetzig.Request, data: *jetzig.Data) !jetzig.View {
     const user_login_input = if (params.get("user_login")) |user_login_input| user_login: {
         switch (user_login_input.*) {
             .string => |string| break :user_login string,
-            else => return request.redirect("/accounts/login", .moved_permanently),
+            else => return request.redirect("/account/login", .moved_permanently),
         }
-    } else return request.redirect("/accounts/login", .moved_permanently);
+    } else return request.redirect("/account/login", .moved_permanently);
     const user_passwrod_input = if (params.get("user_passwrod")) |user_passwrod_input| user_passwrod: {
         switch (user_passwrod_input.*) {
             .string => |string| break :user_passwrod string,
-            else => return request.redirect("/accounts/login", .moved_permanently),
+            else => return request.redirect("/account/login", .moved_permanently),
         }
-    } else return request.redirect("/accounts/login", .moved_permanently);
+    } else return request.redirect("/account/login", .moved_permanently);
 
     if (try request.store.get("users")) |users| {
         const users_interator = users.array.iterator();
@@ -42,7 +42,7 @@ pub fn post(request: *jetzig.Request, data: *jetzig.Data) !jetzig.View {
         }
     }
 
-    return request.redirect("/accounts/login", .moved_permanently);
+    return request.redirect("/account/login", .moved_permanently);
 }
 
 test "index" {
