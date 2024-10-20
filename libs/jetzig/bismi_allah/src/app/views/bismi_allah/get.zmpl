@@ -4,4 +4,5 @@
 </head>
 <div>
   <span>بسم الله الرحمن الرحيم</span>
+  <p>bismi Allah: <b>{{ .bismi_allah }}</b></p>
 </div>
