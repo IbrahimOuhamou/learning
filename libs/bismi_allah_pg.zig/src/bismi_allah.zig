@@ -2,6 +2,7 @@
 // la ilaha illa Allah Mohammed rassoul Allah
 const std = @import("std");
 const pg = @import("pg");
+const bismi_allah_db = @import("bismi_allah_db.zig");
 
 var input_buffer_name: [33]u8 = undefined;
 var stdou_buffer: [1024]u8 = undefined;
@@ -15,18 +16,10 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
 
-    var pool = try pg.Pool.init(allocator, .{ .size = 5, .connect = .{
-        .port = 5432,
-        .host = "127.0.0.1",
-    }, .auth = .{
-        .username = "postgres",
-        .database = "bismi_allah_db",
-        .password = "bismi_allah",
-        .timeout = 10_000,
-    } });
-    defer pool.deinit();
+    try bismi_allah_db.init(allocator);
+    defer bismi_allah_db.deinit();
 
-    var conn = try pool.acquire();
+    var conn = try bismi_allah_db.acquire();
     defer conn.release();
 
     // create table if not exists
