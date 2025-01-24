@@ -4,7 +4,7 @@
 @tailwind components;
 
 .btn {
-  @apply inline-block bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 text-white px-5 py-3 font-bold rounded-md shadow-lg
+  @apply inline-block bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 text-white px-5 py-3 font-bold rounded-md
 }
 
 @tailwind utilities;
