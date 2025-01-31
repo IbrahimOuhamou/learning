@@ -25,7 +25,6 @@
     <p>بسم الله الرحمن الرحيم</p>
 
     <div>
-      <p>bismi_allah_integer: <b>{{ $.bismi_allah.bismi_allah_integer }}</b></p>
       <p>bismi_allah_string: <b>{{ $.bismi_allah.bismi_allah_string }}</b></p>
       <p>bismi_allah_text: <b>{{ $.bismi_allah.bismi_allah_text }}</b></p>
     </div>

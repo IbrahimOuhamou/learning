@@ -4,7 +4,7 @@ const std = @import("std");
 const jetzig = @import("jetzig");
 
 pub fn index(request: *jetzig.Request) !jetzig.View {
-    const query = jetzig.database.Query(.BismiAllahTable).select(.{ .id, .bismi_allah_integer, .bismi_allah_string, .bismi_allah_text });
+    const query = jetzig.database.Query(.BismiAllahTable).select(.{ .id, .bismi_allah_string, .bismi_allah_text });
 
     const bismi_allah_data = try request.repo.all(query);
 
@@ -16,7 +16,7 @@ pub fn index(request: *jetzig.Request) !jetzig.View {
 }
 
 pub fn get(id: []const u8, request: *jetzig.Request) !jetzig.View {
-    // const query = jetzig.database.Query(.BismiAllahTable).find(id).select(.{.bismi_allah_integer});
+    // const query = jetzig.database.Query(.BismiAllahTable).find(id).select(.{.bismi_allah_string});
     const query = jetzig.database.Query(.BismiAllahTable).find(id);
 
     if (try request.repo.execute(query)) |bismi_allah| {
@@ -30,7 +30,6 @@ pub fn get(id: []const u8, request: *jetzig.Request) !jetzig.View {
 
 pub fn post(request: *jetzig.Request) !jetzig.View {
     const Params = struct {
-        bismi_allah_integer: i32,
         bismi_allah_string: []const u8,
         bismi_allah_text: []const u8,
     };
@@ -38,7 +37,6 @@ pub fn post(request: *jetzig.Request) !jetzig.View {
 
     const query = jetzig.database.Query(.BismiAllahTable)
         .insert(.{
-        .bismi_allah_integer = params.bismi_allah_integer,
         .bismi_allah_string = params.bismi_allah_string,
         .bismi_allah_text = params.bismi_allah_text,
     });
