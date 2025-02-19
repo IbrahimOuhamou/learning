@@ -3,10 +3,11 @@
 
 /** @type {import('./$types').PageLoad} */
 export async function load() {
-	const res = await fetch('https://dummyjson.com/quotes');
+	const res = await fetch('/bismi_allah.json');
+	// const res = await fetch('https://dummyjson.com/quotes');
 	const data = await res.json();
 
-	return { quotes: data.quotes };
+	return { json };
 
     // return { 
     //     quotes: [
