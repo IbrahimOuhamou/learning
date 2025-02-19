@@ -8,7 +8,7 @@
         counter.count += 1;
     }
 
-    let { bg_color = 'bg-indigo-300' } = $props();
+    let { bg_color } = $props();
 </script>
 
 <button onclick={increment} class="{bg_color} p-2 rounded-md block text-gray-400">
