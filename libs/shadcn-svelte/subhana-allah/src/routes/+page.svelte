@@ -9,8 +9,7 @@
 	la ilaha illa Allah Mohammed Rassoul Allah
 </p>
 
-
-<Button size="lg">
+<Button size="lg" variant="ghost">
 	بسم الله الرحمن الرحيم
 </Button>
 <Badge>badge</Badge>
