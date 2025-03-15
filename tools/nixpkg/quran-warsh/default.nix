@@ -2,34 +2,44 @@
 # la ilaha illa Allah Mohammed Rassoul Allah
 { lib
 , stdenv
-, fetchgit
-, zig
+, callPackage
+, fetchzip
+, fetchFromGitHub
+, zig_0_13
 , csfml
 }:
 
-stdenv.mkDerivation {
+stdenv.mkDerivation (finalAttrs: {
   pname = "quran-warsh";
-  version = "alpha-2";
+  version = "1.0.0";
 
-  src = fetchgit {
-    url = "https://github.com/muslimDevCommunity/quran-warsh.git";
-    rev = "f7a60ad6e339196b9a9ac9803f16bd685f0c9c9f";
-    hash = "sha256-QXqcFZVMIRPAISA3ezEsleK8oTmhVgb6TWGW6C6nPBc=";
-    postFetch = ''
-      zig build --fetch
-    '';
+  src = fetchFromGitHub {
+    owner = "muslimDevCommunity";
+    repo = "quran-warsh";
+    rev = "1.0.0";
+    hash = "sha256-sq0ks5fpHe5FCbtMKDVBH3Z2Uj2wHz3LB1YdxZgIgGk=";
+  };
+
+  deps = callPackage ./build.zig.zon.nix {
+    zig = zig_0_13;
   };
 
   nativeBuildInputs = [
     csfml
-    zig.hook
+    zig_0_13.hook
   ];
+
+  zigBuildFlags =
+    [
+      "--system"
+      "${finalAttrs.deps}"
+    ];
 
   meta = with lib; {
     description = "warsh tajweed quran for desktop";
     homepage = "https://github.com/muslimDevCommunity/quran-warsh";
     # license = licenses.mit;
     mainProgram = "quran-warsh";
-    inherit (zig.meta) platforms;
+    inherit (zig_0_13.meta) platforms;
   };
-}
+})
