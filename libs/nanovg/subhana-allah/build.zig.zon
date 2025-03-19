@@ -40,6 +40,15 @@
             .url = "git+https://github.com/castholm/SDL.git#dbb1b96360658f5845ff6fac380c4f13d7276dc2",
             .hash = "sdl-0.2.0+3.2.8-7uIn9FxHfQE325TK7b0qpgt10G3x1xl-3ZMOfTzxUg3C",
         },
+        .nanovg_zig_fork = .{
+            .url = "git+https://github.com/IbrahimOuhamou/nanovg-zig.git?ref=subhana-allah-zig-0.14#88975eb02e10d0a42c3050d8645129e2cb93c408",
+            .hash = "nanovg_zig_fork-0.0.0-WZduZgsgNgA8RJRyQbV_OY9DDJuugpz9orjzk84uG5qG",
+        },
+        .zigglgen = .{
+            .url = "git+https://github.com/castholm/zigglgen.git#acb71c723ddfb11e39c17a3925897da9d9337964",
+            .hash = "zigglgen-0.4.0-bmyqLWjhLQDzchu_2y_Sq_maUNfbfWYVnBA0zON3UnxT",
+        },
+
     },
     .paths = .{
         "build.zig",
