@@ -3,7 +3,7 @@
 { lib
 , stdenv
 , fetchgit
-, zig
+, zig_0_13
 , SDL2
 , SDL2_ttf
 , pkg-config
@@ -25,7 +25,7 @@ stdenv.mkDerivation rec {
     pkg-config
     SDL2.dev
     SDL2_ttf
-    zig.hook
+    zig_0_13.hook
   ];
 
   meta = with lib; {
@@ -33,6 +33,6 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/muslimDevCommunity/PoppingDikr";
     # license = licenses.mit;
     mainProgram = "popping-dikr";
-    inherit (zig.meta) platforms;
+    inherit (zig_0_13.meta) platforms;
   };
 }
