@@ -23,11 +23,6 @@ pub fn build(b: *std.Build) void {
     });
     const sdl_lib = sdl_dep.artifact("SDL3");
 
-    const nanovg_zig = b.dependency("nanovg_zig_fork", .{
-        .target = target,
-        .optimize = optimize,
-    });
-
     // We will also create a module for our other entry point, 'main.zig'.
     const exe_mod = b.createModule(.{
         // `root_source_file` is the Zig "entry point" of the module. If a module
@@ -53,7 +48,6 @@ pub fn build(b: *std.Build) void {
         .root_module = exe_mod,
     });
     exe.linkLibrary(sdl_lib);
-    exe.root_module.addImport("nanovg", nanovg_zig.module("nanovg"));
 
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
