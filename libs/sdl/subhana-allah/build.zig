@@ -34,12 +34,12 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    // Generate OpenGL 4.1 bindings at build time.
-    exe_mod.addImport("gl", @import("zigglgen").generateBindingsModule(b, .{
-        .api = .gl,
-        .version = .@"4.1",
-        .profile = .core,
-    }));
+    // // Generate OpenGL 4.1 bindings at build time.
+    // exe_mod.addImport("gl", @import("zigglgen").generateBindingsModule(b, .{
+    //     .api = .gl,
+    //     .version = .@"4.1",
+    //     .profile = .core,
+    // }));
 
     // This creates another `std.Build.Step.Compile`, but this one builds an executable
     // rather than a static library.
