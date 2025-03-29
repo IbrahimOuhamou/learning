@@ -1,7 +1,7 @@
 // بسم الله الرحمن الرحيم
 // la ilaha illa Allah Mohammed Rassoul Allah
 const std = @import("std");
-const log = std.log.scoped(.@"examples/basic");
+const log = std.log.scoped(.@"subhana-allah");
 
 const zzz = @import("zzz");
 const http = zzz.HTTP;
@@ -20,8 +20,78 @@ const Respond = http.Respond;
 fn base_handler(ctx: *const Context, _: void) !Respond {
     return ctx.response.apply(.{
         .status = .OK,
+        .mime = http.Mime.JSON,
+        .body =
+        \\{"name":"alhamdo li Allah"}
+        ,
+    });
+}
+
+fn dynamic_route_handler(ctx: *const Context, _: void) !Respond {
+    const response_slice = try std.fmt.allocPrint(ctx.allocator,
+        \\{{
+        \\  "dynamic": {{
+        \\    "signed": "{d}",
+        \\    "string": "{s}",
+        \\    "remaining": "{s}"
+        \\  }}
+        \\}}
+    , .{ ctx.captures[0].signed, ctx.captures[1].string, ctx.captures[2].remaining });
+
+    std.debug.print("alhamdo li Allah response: '{s}'\n", .{response_slice});
+
+    return ctx.response.apply(.{
+        .status = .OK,
+        .mime = http.Mime.JSON,
+        .body = response_slice,
+    });
+}
+
+fn cookie_route_handler(ctx: *const Context, _: void) !Respond {
+    const query_cookies_name = ctx.queries.get("name");
+    const query_cookies_value = ctx.queries.get("value");
+
+    var response_body = try std.mem.concat(ctx.allocator, u8, &.{"<h1>la ilaha illa Allah Mohammed Rassoul Allah</h1><h3>Request Cookies:</h3>"});
+
+    const cookies = ctx.request.cookies;
+    var cookies_iter = cookies.iterator();
+    while (cookies_iter.next()) |cookie| {
+        log.debug("cookie: k={s} v={s}", .{ cookie.key_ptr.*, cookie.value_ptr.* });
+        const new_response_body = try std.mem.concat(ctx.allocator, u8, &.{
+            response_body,
+            cookie.key_ptr.*,
+            "=",
+            cookie.value_ptr.*,
+            "<br/>",
+        });
+        ctx.allocator.free(response_body);
+
+        response_body = new_response_body;
+    }
+
+    const cookie = http.Cookie.init(query_cookies_name orelse query_cookies_value orelse "", query_cookies_value orelse "");
+
+    const new_response_body = try std.mem.concat(ctx.allocator, u8, &.{
+        response_body,
+        "<h3>New Cookie:</h3>",
+        query_cookies_name orelse query_cookies_value orelse "",
+        "=",
+        query_cookies_value orelse "",
+        "<br>",
+    });
+    ctx.allocator.free(response_body);
+    response_body = new_response_body;
+
+    const cookie_12 = cookies.map.get("bismi-allah");
+    std.debug.print("alhamdo li Allah: cookies.map.get.(\"bismi-allah\"): '{?s}'\n", .{cookie_12});
+
+    return ctx.response.apply(.{
+        .status = .OK,
         .mime = http.Mime.HTML,
-        .body = "Hello, world!",
+        .body = response_body,
+        .headers = &.{
+            .{ "Set-Cookie", try cookie.to_string_alloc(ctx.allocator) },
+        },
     });
 }
 
@@ -38,6 +108,8 @@ pub fn main() !void {
 
     var router = try Router.init(allocator, &.{
         Route.init("/").get({}, base_handler).layer(),
+        Route.init("/dynamic/%i/%s/%r").get({}, dynamic_route_handler).layer(),
+        Route.init("/cookies").get({}, cookie_route_handler).layer(),
     }, .{});
     defer router.deinit(allocator);
 
