@@ -17,6 +17,13 @@ const User = struct {
     weight: f32 = 10.0,
 };
 
+const Product = struct {
+    id: i32,
+    name: []const u8,
+    price: f32,
+    stock: i32,
+};
+
 pub fn main() !void {
     const stdout_file = std.io.getStdOut().writer();
     var bw = std.io.bufferedWriter(stdout_file);
@@ -57,6 +64,18 @@ pub fn main() !void {
 
     const all_users = try conn.fetch_all(allocator, User, "select * from users", .{});
 
+    try conn.execute(
+    \\ insert into products (name, price, stock) values (?, ?, ?)
+    , .{ "misbaha", 12.0, 13 });
+
+    try conn.execute(
+    \\ insert into products (name, price, stock) values (?, ?, ?)
+    , .{ "zarbia", 12.0, 13 });
+
+    const all_products = try conn.fetch_all(allocator, Product, "select * from products", .{});
+
+    defer allocator.free(all_products);
+    defer for (all_products) |product| allocator.free(product.name);
     defer allocator.free(all_users);
     defer for (all_users) |user| allocator.free(user.name);
 
@@ -65,6 +84,11 @@ pub fn main() !void {
     for (all_users) |user| try stdout.print(
         "{s}'s age: {?d} + weight: {?d} | perms: {s} + country: {s}\n",
         .{ user.name, user.age, user.weight, @tagName(user.perms), @tagName(user.country) },
+    );
+    try bw.flush();
+    for (all_products) |product| try stdout.print(
+        "{d}: {s}'s price: {d}. stock {d}\n",
+        .{ product.id, product.name, product.price,product.stock},
     );
     try bw.flush();
 }

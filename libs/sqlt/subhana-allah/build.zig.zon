@@ -15,7 +15,6 @@
         "build.zig",
         "build.zig.zon",
         "src",
-        "sqlt",
         // For example...
         //"LICENSE",
         //"README.md",

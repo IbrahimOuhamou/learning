@@ -21,10 +21,12 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    const sqlt_dir = b.option([]const u8, "sqlt_dir", "Location of your sqlt folder") orelse "./src/sqlt";
+
     const sqlt = b.dependency("sqlt", .{
         .target = target,
         .optimize = optimize,
-        // .sqlt_dir = "src/sqlt",
+        .sqlt_dir = sqlt_dir,
     }).module("sqlt");
 
     exe_mod.addImport("sqlt", sqlt);
