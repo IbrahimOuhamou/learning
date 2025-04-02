@@ -99,13 +99,16 @@ const FormParams = struct {
     id: i32 = 0,
     name: []const u8,
     age: u8,
-    options: ?[]const u8,
+    options: ?[]const u8 = null,
 };
 fn form_post_handler(ctx: *const Context, _: void) !Respond {
-    const params = try http.Form(FormParams).parse(ctx.allocator, ctx);
+    // const params = try http.Form(FormParams).parse(ctx.allocator, ctx);
+
+    const params = try std.json.parseFromSlice(FormParams, ctx.allocator, ctx.request.body orelse return error.BodyEmpty, .{.ignore_unknown_fields = true});
+    defer params.deinit();
 
     var json_array_list = std.ArrayList(u8).init(ctx.allocator);
-    try std.json.stringify(params, .{}, json_array_list.writer());
+    try std.json.stringify(params.value, .{}, json_array_list.writer());
 
     return ctx.response.apply(.{
         .status = .OK,
