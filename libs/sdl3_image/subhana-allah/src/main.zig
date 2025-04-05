@@ -10,6 +10,7 @@ const c = @cImport({
     // macro magic, 'SDL_MAIN_HANDLED' should be defined before including 'SDL_main.h'.
     @cDefine("SDL_MAIN_HANDLED", {});
     @cInclude("SDL3/SDL_main.h");
+    @cInclude("SDL3_image/SDL_image.h");
 });
 
 pub fn main() !void {
@@ -39,6 +40,13 @@ pub fn main() !void {
     defer c.SDL_DestroyRenderer(renderer);
     defer c.SDL_DestroyWindow(window);
 
+    const surface_image = try errify(c.IMG_Load("/home/ibrahimo/Pictures/20250221_12h18m01s_grim.png"));
+    defer c.SDL_DestroySurface(surface_image);
+
+    const texture_image = try errify(c.SDL_CreateTextureFromSurface(renderer, surface_image));
+    defer c.SDL_DestroyTexture(texture_image);
+
+
     main_loop: while (true) {
 
         // Process SDL events
@@ -66,6 +74,7 @@ pub fn main() !void {
             try errify(c.SDL_RenderClear(renderer));
 
             // try errify(c.SDL_SetRenderScale(renderer, 2, 2));
+            try errify(c.SDL_RenderTexture(renderer, texture_image, null, null));
 
             try errify(c.SDL_RenderPresent(renderer));
         }
