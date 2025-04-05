@@ -1,41 +1,88 @@
 // بسم الله الرحمن الرحيم
 // la ilaha illa Allah Mohammed Rassoul Allah
-
 const std = @import("std");
-
 const clay = @import("zclay");
-const c = @cImport({
-    @cDefine("SDL_DISABLE_OLD_NAMES", {});
-    @cInclude("SDL3/SDL.h");
-    @cInclude("SDL3/SDL_revision.h");
-    // For programs that provide their own entry points instead of relying on SDL's main function
-    // macro magic, 'SDL_MAIN_HANDLED' should be defined before including 'SDL_main.h'.
-    @cDefine("SDL_MAIN_HANDLED", {});
-    @cInclude("SDL3/SDL_main.h");
-    @cInclude("SDL3_ttf/SDL_ttf.h");
-    @cInclude("SDL3_image/SDL_image.h");
-});
+const c = @import("c.zig").c;
+const clay_sdl_renderer = @import("renderers/SDL3/clay_renderer_SDL3.zig");
+
+const light_grey: clay.Color = .{ 224, 215, 210, 255 };
+const red: clay.Color = .{ 168, 66, 28, 255 };
+const orange: clay.Color = .{ 225, 138, 50, 255 };
+const white: clay.Color = .{ 250, 250, 255, 255 };
+
+const sidebar_item_layout: clay.LayoutConfig = .{ .sizing = .{ .w = .grow, .h = .fixed(50) } };
+
+// Re-useable components are just normal functions
+fn sidebarItemComponent(index: u32) void {
+    clay.UI()(.{
+        .id = .IDI("SidebarBlob", index),
+        .layout = sidebar_item_layout,
+        .background_color = orange,
+    })({});
+}
+
+// An example function to begin the "root" of your layout tree
+fn createLayout(profile_picture: *c.SDL_Surface) clay.ClayArray(clay.RenderCommand) {
+    clay.beginLayout();
+    clay.UI()(.{
+        .id = .ID("OuterContainer"),
+        .layout = .{ .direction = .left_to_right, .sizing = .grow, .padding = .all(16), .child_gap = 16 },
+        .background_color = white,
+    })({
+        clay.UI()(.{
+            .id = .ID("SideBar"),
+            .layout = .{
+                .direction = .top_to_bottom,
+                .sizing = .{ .h = .grow, .w = .fixed(300) },
+                .padding = .all(16),
+                .child_alignment = .{ .x = .center, .y = .top },
+                .child_gap = 16,
+            },
+            .background_color = light_grey,
+        })({
+            clay.UI()(.{
+                .id = .ID("ProfilePictureOuter"),
+                .layout = .{ .sizing = .{ .w = .grow }, .padding = .all(16), .child_alignment = .{ .x = .left, .y = .center }, .child_gap = 16 },
+                .background_color = red,
+            })({
+                clay.UI()(.{
+                    .id = .ID("ProfilePicture"),
+                    .layout = .{ .sizing = .{ .h = .fixed(60), .w = .fixed(60) } },
+                    .image = .{ .source_dimensions = .{ .h = 60, .w = 60 }, .image_data = @ptrCast(profile_picture) },
+                })({});
+                clay.text("Clay - UI Library", .{ .font_size = 24, .color = light_grey });
+            });
+
+            for (0..5) |i| sidebarItemComponent(@intCast(i));
+        });
+
+        clay.UI()(.{
+            .id = .ID("MainContent"),
+            .layout = .{ .sizing = .grow },
+            .background_color = light_grey,
+        })({
+            //...
+        });
+    });
+    return clay.endLayout();
+}
 
 pub fn main() !void {
-    errdefer |err| if (err == error.SdlError) std.log.err("SDL error: {s}", .{c.SDL_GetError()});
-
+    // Allocator for Clay
     const allocator = std.heap.c_allocator;
 
+    // Initialize Clay
     const min_memory_size: u32 = clay.minMemorySize();
     const memory = try allocator.alloc(u8, min_memory_size);
     defer allocator.free(memory);
     const arena: clay.Arena = clay.createArenaWithCapacityAndMemory(memory);
-    _ = clay.initialize(arena, .{ .h = 1000, .w = 1000 }, .{});
-    //clay.setMeasureTextFunction(void, {}, renderer.measureText);
-
-    // For programs that provide their own entry points instead of relying on SDL's main function
-    // macro magic, 'SDL_SetMainReady' should be called before calling 'SDL_Init'.
-    c.SDL_SetMainReady();
-
-    try errify(c.SDL_SetAppMetadata("popping-dikr", "0.0.0", "dikr.popping-dikr.muslimDevCommunity"));
+    _ = clay.initialize(arena, .{ .w = 1000, .h = 1000 }, .{});
 
     try errify(c.SDL_Init(c.SDL_INIT_VIDEO));
     defer c.SDL_Quit();
+
+    try errify(c.TTF_Init());
+    defer c.TTF_Quit();
 
     const window_w = 640;
     const window_h = 480;
@@ -52,44 +99,61 @@ pub fn main() !void {
     defer c.SDL_DestroyRenderer(renderer);
     defer c.SDL_DestroyWindow(window);
 
-    const surface_image = try errify(c.IMG_Load("/home/ibrahimo/Pictures/20250221_12h18m01s_grim.png"));
+    // const font: *c.TTF_Font = open_font: {
+    //     if(config.font_path) |path| blk: {
+    //         break :open_font errify(c.TTF_OpenFont(path, 100)) catch break :blk;
+    //     }
+    //     const io: *c.SDL_IOStream = try errify(c.SDL_IOFromConstMem(font_data.ptr, font_data.len));
+    //     break :open_font try errify(c.TTF_OpenFontIO(io, true, 100));
+    // };
+    const font: *c.TTF_Font = try errify(c.TTF_OpenFont("src/resources/Roboto-Regular.ttf", 20));
+    defer c.TTF_CloseFont(font);
+
+    const text_engine = try errify(c.TTF_CreateRendererTextEngine(renderer));
+    defer c.TTF_DestroyRendererTextEngine(text_engine);
+
+    var fonts: [1]*c.TTF_Font = undefined; 
+    fonts[0] = font;
+
+    // Set up ClayRenderer
+    var clay_renderer: clay_sdl_renderer.Clay_SDL3RendererData = .{
+        .renderer = @ptrCast(renderer),
+        .textEngine = @ptrCast(text_engine),
+        .fonts = &fonts,
+    };
+
+    // const surface_image: *c.SDL_Surface = try errify(c.IMG_Load("/home/ibrahimo/in_the_name_of_allah.png"));
+    const surface_image: *c.SDL_Surface = try errify(c.IMG_Load("src/resources/profile-picture.png"));
     defer c.SDL_DestroySurface(surface_image);
 
-    const texture_image = try errify(c.SDL_CreateTextureFromSurface(renderer, surface_image));
-    defer c.SDL_DestroyTexture(texture_image);
+    clay.setDebugModeEnabled(true);
 
-
+    // Main loop
     main_loop: while (true) {
-
-        // Process SDL events
-        {
-            var event: c.SDL_Event = undefined;
-            while (c.SDL_PollEvent(&event)) {
-                switch (event.type) {
-                    c.SDL_EVENT_QUIT => {
-                        break :main_loop;
-                    },
-                    c.SDL_EVENT_MOUSE_BUTTON_DOWN => {
-                        switch (event.button.button) {
-                            c.SDL_BUTTON_LEFT => {},
-                            else => {},
-                        }
-                    },
-                    else => {},
-                }
+        // Handle events
+        var event: c.SDL_Event = undefined;
+        while (c.SDL_PollEvent(&event)) {
+            switch (event.type) {
+                c.SDL_EVENT_QUIT => break :main_loop,
+                c.SDL_EVENT_WINDOW_RESIZED => clay.setLayoutDimensions(.{ .h = @floatFromInt(event.window.data1), .w = @floatFromInt(event.window.data2) }),
+                c.SDL_EVENT_MOUSE_MOTION => clay.setPointerState(.{ .x = event.motion.x, .y = event.motion.y }, 0 != (event.motion.state & c.SDL_BUTTON_LMASK)),
+                c.SDL_EVENT_MOUSE_BUTTON_DOWN => clay.setPointerState(.{ .x = event.button.x, .y = event.button.y }, event.button.button == c.SDL_BUTTON_LEFT),
+                c.SDL_EVENT_MOUSE_WHEEL => clay.updateScrollContainers(true, .{.x = event.wheel.x, .y = event.wheel.y}, 0.01),
+                else => {},
             }
         }
-        // Draw
-        {
-            try errify(c.SDL_SetRenderDrawColor(renderer, 0x47, 0x5b, 0x8d, 0xff));
 
-            try errify(c.SDL_RenderClear(renderer));
 
-            // try errify(c.SDL_SetRenderScale(renderer, 2, 2));
-            try errify(c.SDL_RenderTexture(renderer, texture_image, null, null));
+        // var render_commands = createLayout(&profile_picture);
+        var render_commands = createLayout(surface_image);
 
-            try errify(c.SDL_RenderPresent(renderer));
-        }
+        try errify(c.SDL_SetRenderDrawColor(renderer, 0x47, 0x5b, 0x8d, 0xff));
+
+        try errify(c.SDL_RenderClear(renderer));
+
+        clay_sdl_renderer.SDL_Clay_RenderClayCommands(&clay_renderer, &render_commands);
+
+        try errify(c.SDL_RenderPresent(renderer));
     }
 }
 
