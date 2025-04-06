@@ -1,3 +1,5 @@
+// بسم الله الرحمن الرحيم
+// la ilaha illa Allah Mohammed Rassoul Allah
 const std = @import("std");
 const cl = @import("zclay");
 const math = std.math;
@@ -25,13 +27,6 @@ const MAX_CIRCLE_SEGMENTS = 256;
 const MAX_VERTICES = 4 + (4 * (MAX_CIRCLE_SEGMENTS * 2)) + 2 * 4; // 2060
 const MAX_INDICES = 6 + (4 * (MAX_CIRCLE_SEGMENTS * 3)) + 6 * 4;   // 3102
 const MAX_ARC_POINTS = 1024;
-
-// Post-increment helper function
-fn postIncrement(num: *u32) u32 {
-    const current = num.*;
-    num.* += 1;
-    return current;
-}
 
 // Render a filled rounded rectangle
 pub fn SDL_Clay_RenderFillRoundedRect(
@@ -282,7 +277,7 @@ pub fn SDL_Clay_RenderArc(
     thickness: f32,
     color: cl.Color,
 ) void {
-    _ = c.SDL_SetRenderDrawColorFloat(rendererData.renderer, color[0], color[1], color[2], color[3]);
+    _ = c.SDL_SetRenderDrawColor(rendererData.renderer, @intFromFloat(color[0]), @intFromFloat(color[1]), @intFromFloat(color[2]), @intFromFloat(color[3]));
 
     const radStart = startAngle * (c.SDL_PI_F / 180.0);
     const radEnd = endAngle * (c.SDL_PI_F / 180.0);
@@ -326,22 +321,26 @@ pub fn SDL_Clay_RenderClayCommands(
         const rcmd = cl.renderCommandArrayGet(rcommands, @intCast(i));
         const bounding_box = rcmd.bounding_box;
         const rect = c.SDL_FRect{
-            .x = bounding_box.x,
-            .y = bounding_box.y,
-            .w = bounding_box.width,
-            .h = bounding_box.height,
+            // .x = @intFromFloat(bounding_box.x),
+            // .y = bounding_box.y,
+            // .w = bounding_box.width,
+            // .h = bounding_box.height,
+            .x = @floatFromInt(@as(i32, @intFromFloat(bounding_box.x))),
+            .y = @floatFromInt(@as(i32, @intFromFloat(bounding_box.y))),
+            .w = @floatFromInt(@as(i32, @intFromFloat(bounding_box.width))),
+            .h = @floatFromInt(@as(i32, @intFromFloat(bounding_box.height))),
         };
 
         switch (rcmd.command_type) {
             .rectangle => {
                 const config = rcmd.render_data.rectangle;
                 _ = c.SDL_SetRenderDrawBlendMode(rendererData.renderer, c.SDL_BLENDMODE_BLEND);
-                _ = c.SDL_SetRenderDrawColorFloat(
+                _ = c.SDL_SetRenderDrawColor(
                     rendererData.renderer,
-                    config.background_color[0],
-                    config.background_color[1],
-                    config.background_color[2],
-                    config.background_color[3],
+                    @intFromFloat(config.background_color[0]),
+                    @intFromFloat(config.background_color[1]),
+                    @intFromFloat(config.background_color[2]),
+                    @intFromFloat(config.background_color[3]),
                 );
                 if (config.corner_radius.top_left > 0) {
                     SDL_Clay_RenderFillRoundedRect(
@@ -371,7 +370,7 @@ pub fn SDL_Clay_RenderClayCommands(
                         config.text_color[2],
                         config.text_color[3],
                     );
-                    _ = c.TTF_DrawRendererText(text, rect.x, rect.y);
+                    _ = c.TTF_DrawRendererText(text, rect.x, rect.y - 15);
                     c.TTF_DestroyText(text);
                 }
             },
@@ -385,12 +384,12 @@ pub fn SDL_Clay_RenderClayCommands(
                     .bottom_right = @min(config.corner_radius.bottom_right, minRadius),
                 };
 
-                _ = c.SDL_SetRenderDrawColorFloat(
+                _ = c.SDL_SetRenderDrawColor(
                     rendererData.renderer,
-                    config.color[0],
-                    config.color[1],
-                    config.color[2],
-                    config.color[3],
+                    @intFromFloat(config.color[0]),
+                    @intFromFloat(config.color[1]),
+                    @intFromFloat(config.color[2]),
+                    @intFromFloat(config.color[3]),
                 );
 
                 // Left edge
@@ -400,7 +399,7 @@ pub fn SDL_Clay_RenderClayCommands(
                     const line = c.SDL_FRect{
                         .x = rect.x,
                         .y = starting_y,
-                        .w = @as(f32, @floatFromInt(config.width.left)),
+                        .w = @floatFromInt(config.width.left),
                         .h = length,
                     };
                     _ = c.SDL_RenderFillRect(rendererData.renderer, &line);
@@ -414,7 +413,7 @@ pub fn SDL_Clay_RenderClayCommands(
                     const line = c.SDL_FRect{
                         .x = starting_x,
                         .y = starting_y,
-                        .w = @as(f32, @floatFromInt(config.width.right)),
+                        .w = @floatFromInt(config.width.right),
                         .h = length,
                     };
                     _ = c.SDL_RenderFillRect(rendererData.renderer, &line);
@@ -428,7 +427,7 @@ pub fn SDL_Clay_RenderClayCommands(
                         .x = starting_x,
                         .y = rect.y,
                         .w = length,
-                        .h = @as(f32, @floatFromInt(config.width.top)),
+                        .h = @floatFromInt(config.width.top),
                     };
                     _ = c.SDL_RenderFillRect(rendererData.renderer, &line);
                 }
@@ -442,7 +441,7 @@ pub fn SDL_Clay_RenderClayCommands(
                         .x = starting_x,
                         .y = starting_y,
                         .w = length,
-                        .h = @as(f32, @floatFromInt(config.width.bottom)),
+                        .h = @floatFromInt(config.width.bottom),
                     };
                     _ = c.SDL_RenderFillRect(rendererData.renderer, &line);
                 }

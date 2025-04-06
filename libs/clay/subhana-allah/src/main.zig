@@ -12,6 +12,8 @@ const white: clay.Color = .{ 250, 250, 255, 255 };
 
 const sidebar_item_layout: clay.LayoutConfig = .{ .sizing = .{ .w = .grow, .h = .fixed(50) } };
 
+const font_size = 24;
+
 // Re-useable components are just normal functions
 fn sidebarItemComponent(index: u32) void {
     clay.UI()(.{
@@ -50,7 +52,7 @@ fn createLayout(profile_picture: *c.SDL_Surface) clay.ClayArray(clay.RenderComma
                     .layout = .{ .sizing = .{ .h = .fixed(60), .w = .fixed(60) } },
                     .image = .{ .source_dimensions = .{ .h = 60, .w = 60 }, .image_data = @ptrCast(profile_picture) },
                 })({});
-                clay.text("Clay - UI Library", .{ .font_size = 24, .color = light_grey });
+                clay.text("Clay - UI Library", .{ .font_size = font_size, .color = light_grey });
             });
 
             for (0..5) |i| sidebarItemComponent(@intCast(i));
@@ -71,12 +73,15 @@ pub fn main() !void {
     // Allocator for Clay
     const allocator = std.heap.c_allocator;
 
+    const window_w = 640;
+    const window_h = 480;
+
     // Initialize Clay
     const min_memory_size: u32 = clay.minMemorySize();
     const memory = try allocator.alloc(u8, min_memory_size);
     defer allocator.free(memory);
     const arena: clay.Arena = clay.createArenaWithCapacityAndMemory(memory);
-    _ = clay.initialize(arena, .{ .w = 1000, .h = 1000 }, .{});
+    _ = clay.initialize(arena, .{ .w = window_w, .h = window_h }, .{});
 
     try errify(c.SDL_Init(c.SDL_INIT_VIDEO));
     defer c.SDL_Quit();
@@ -84,8 +89,6 @@ pub fn main() !void {
     try errify(c.TTF_Init());
     defer c.TTF_Quit();
 
-    const window_w = 640;
-    const window_h = 480;
     errify(c.SDL_SetHint(c.SDL_HINT_RENDER_VSYNC, "1")) catch {};
 
     const window: *c.SDL_Window, const renderer: *c.SDL_Renderer = create_window_and_renderer: {
@@ -106,7 +109,7 @@ pub fn main() !void {
     //     const io: *c.SDL_IOStream = try errify(c.SDL_IOFromConstMem(font_data.ptr, font_data.len));
     //     break :open_font try errify(c.TTF_OpenFontIO(io, true, 100));
     // };
-    const font: *c.TTF_Font = try errify(c.TTF_OpenFont("src/resources/Roboto-Regular.ttf", 20));
+    const font: *c.TTF_Font = try errify(c.TTF_OpenFont("src/resources/Roboto-Regular.ttf", font_size));
     defer c.TTF_CloseFont(font);
 
     const text_engine = try errify(c.TTF_CreateRendererTextEngine(renderer));
@@ -135,7 +138,7 @@ pub fn main() !void {
         while (c.SDL_PollEvent(&event)) {
             switch (event.type) {
                 c.SDL_EVENT_QUIT => break :main_loop,
-                c.SDL_EVENT_WINDOW_RESIZED => clay.setLayoutDimensions(.{ .h = @floatFromInt(event.window.data1), .w = @floatFromInt(event.window.data2) }),
+                c.SDL_EVENT_WINDOW_RESIZED => clay.setLayoutDimensions(.{ .w = @floatFromInt(event.window.data1), .h = @floatFromInt(event.window.data2) }),
                 c.SDL_EVENT_MOUSE_MOTION => clay.setPointerState(.{ .x = event.motion.x, .y = event.motion.y }, 0 != (event.motion.state & c.SDL_BUTTON_LMASK)),
                 c.SDL_EVENT_MOUSE_BUTTON_DOWN => clay.setPointerState(.{ .x = event.button.x, .y = event.button.y }, event.button.button == c.SDL_BUTTON_LEFT),
                 c.SDL_EVENT_MOUSE_WHEEL => clay.updateScrollContainers(true, .{.x = event.wheel.x, .y = event.wheel.y}, 0.01),
