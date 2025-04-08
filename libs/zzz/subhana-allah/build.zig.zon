@@ -40,6 +40,10 @@
             .url = "git+https://github.com/tardy-org/zzz#cda69dd141aa2addb490647aa214104da7b11036",
             .hash = "zzz-0.3.0-4HoaJrBQAgCXB_66nre0nvYZmAXMxj__gS8sFjpR68Hs",
         },
+        .jwt = .{
+            .url = "git+https://github.com/Gnyblast/zig-jwt#5a58727a344c349f62c63351997d94c3205325d4",
+            .hash = "jwt-0.1.0-NpgsfhamAADrKAGeGmj_2aN1p3gw6y3YZBIPmruylq0V",
+        },
     },
     .paths = .{
         "build.zig",

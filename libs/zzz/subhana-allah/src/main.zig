@@ -4,6 +4,7 @@ const std = @import("std");
 const log = std.log.scoped(.@"subhana-allah");
 
 const zzz = @import("zzz");
+const jwt = @import("jwt");
 const http = zzz.HTTP;
 
 const tardy = zzz.tardy;
@@ -19,21 +20,57 @@ const Respond = http.Respond;
 const Next = http.Next;
 const Middleware = http.Middleware;
 
+const Jwt = struct {
+    user_id: i32,
+};
+
+const secret = "LaIlahaIllaAllah";
+
+fn login_handler(ctx: *const Context, _: void) !Respond {
+    const params = try std.json.parseFromSlice(Jwt, ctx.allocator, ctx.request.body orelse return error.BodyEmpty, .{.ignore_unknown_fields = true});
+    defer params.deinit();
+    const token = try jwt.encode(ctx.allocator,
+        .{ .alg = .HS256 },
+        .{
+            .sub = "Auth",
+            .exp = std.time.timestamp() + 100000,
+            .user_id = params.value.user_id,
+        },
+        .{ .secret = secret },
+    );
+
+    return ctx.response.apply(.{
+        .status = .OK,
+        .mime = http.Mime.JSON,
+        .body = \\{"status": 200, "message": "ok"}
+        ,
+        .headers = &.{
+            .{"Authorization", token},
+        },
+    });
+}
+
 fn jwt_middleware(next: *Next, _: void) !Respond {
-    const jwt = next.context.request.headers.get("jwt") orelse return next.context.response.apply(.{
+    const header_token = next.context.request.headers.get("Authorization") orelse return next.context.response.apply(.{
         .status = .Unauthorized,
         .mime = http.Mime.JSON,
         .body = 
         \\{"error": 401, "message": "Unauthorized, no jwt provided"}
         ,
     });
-    if(std.mem.eql(u8, jwt, "null")) return  next.context.response.apply(.{
-        .status = .Unauthorized,
-        .mime = http.Mime.JSON,
-        .body = 
-        \\{"error": 401, "message": "Unauthorized, jwt is 'null'"}
-        ,
-    });
+
+    const ctx = next.context;
+
+    const decoded_token = try jwt.decode(
+        ctx.allocator,
+        Jwt,
+        header_token,
+        .{ .secret = secret },
+        .{},
+    );
+
+    try next.context.storage.put(Jwt, decoded_token.claims);
+
     return next.run();
 }
 
@@ -157,6 +194,9 @@ pub fn main() !void {
             @embedFile("static/form.html"),
         ).layer(),
 
+        Route.init("/login").post({}, login_handler).layer(),
+
+        // only if logged in
         Middleware.init({}, jwt_middleware).layer(),
         Route.init("/form").post({}, form_post_handler).layer(),
     }, .{});

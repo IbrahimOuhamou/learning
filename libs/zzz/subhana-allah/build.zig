@@ -15,6 +15,16 @@ pub fn build(b: *std.Build) void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
+    const zzz = b.dependency("zzz", .{
+        .target = target,
+        .optimize = optimize,
+    }).module("zzz");
+    
+    const jwt = b.dependency("jwt", .{
+        .target = target,
+        .optimize = optimize,
+    }).module("jwt");
+
     // We will also create a module for our other entry point, 'main.zig'.
     const exe_mod = b.createModule(.{
         // `root_source_file` is the Zig "entry point" of the module. If a module
@@ -25,13 +35,8 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-
-    const zzz = b.dependency("zzz", .{
-        .target = target,
-        .optimize = optimize,
-    }).module("zzz");
-
     exe_mod.addImport("zzz", zzz);
+    exe_mod.addImport("jwt", jwt);
 
     // This creates another `std.Build.Step.Compile`, but this one builds an executable
     // rather than a static library.
