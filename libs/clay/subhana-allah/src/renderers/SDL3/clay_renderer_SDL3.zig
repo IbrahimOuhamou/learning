@@ -370,7 +370,7 @@ pub fn SDL_Clay_RenderClayCommands(
                         config.text_color[2],
                         config.text_color[3],
                     );
-                    _ = c.TTF_DrawRendererText(text, rect.x, rect.y - 15);
+                    _ = c.TTF_DrawRendererText(text, rect.x - 5, rect.y - 15);
                     c.TTF_DestroyText(text);
                 }
             },

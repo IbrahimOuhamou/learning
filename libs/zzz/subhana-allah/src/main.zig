@@ -16,6 +16,26 @@ const Router = http.Router;
 const Context = http.Context;
 const Route = http.Route;
 const Respond = http.Respond;
+const Next = http.Next;
+const Middleware = http.Middleware;
+
+fn jwt_middleware(next: *Next, _: void) !Respond {
+    const jwt = next.context.request.headers.get("jwt") orelse return next.context.response.apply(.{
+        .status = .Unauthorized,
+        .mime = http.Mime.JSON,
+        .body = 
+        \\{"error": 401, "message": "Unauthorized, no jwt provided"}
+        ,
+    });
+    if(std.mem.eql(u8, jwt, "null")) return  next.context.response.apply(.{
+        .status = .Unauthorized,
+        .mime = http.Mime.JSON,
+        .body = 
+        \\{"error": 401, "message": "Unauthorized, jwt is 'null'"}
+        ,
+    });
+    return next.run();
+}
 
 fn base_handler(ctx: *const Context, _: void) !Respond {
     return ctx.response.apply(.{
@@ -132,11 +152,13 @@ pub fn main() !void {
         Route.init("/").get({}, base_handler).layer(),
         Route.init("/dynamic/%i/%s/%r").get({}, dynamic_route_handler).layer(),
         Route.init("/cookies").get({}, cookie_route_handler).layer(),
-        Route.init("/form").post({}, form_post_handler).layer(),
         Route.init("/form").embed_file(
             .{ .mime = http.Mime.HTML },
             @embedFile("static/form.html"),
         ).layer(),
+
+        Middleware.init({}, jwt_middleware).layer(),
+        Route.init("/form").post({}, form_post_handler).layer(),
     }, .{});
     defer router.deinit(allocator);
 
