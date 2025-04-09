@@ -11,6 +11,7 @@ const tardy = zzz.tardy;
 const Tardy = tardy.Tardy(.auto);
 const Runtime = tardy.Runtime;
 const Socket = tardy.Socket;
+const Dir = tardy.Dir;
 
 const Server = http.Server;
 const Router = http.Router;
@@ -19,12 +20,103 @@ const Route = http.Route;
 const Respond = http.Respond;
 const Next = http.Next;
 const Middleware = http.Middleware;
+const Mime = http.Mime;
+
+pub const MD = Mime.generate("text/markdown; charset=utf-8", "md", "Markdown Document");
 
 const Jwt = struct {
     user_id: i32,
 };
 
+// todo: use env var
 const secret = "LaIlahaIllaAllah";
+
+const SecureFile = struct {
+    id: i32,
+    name: []const u8,
+    mime: Mime,
+};
+const secure_files = [_]SecureFile{
+    .{ .id = 1, .name = "BismiAllah.md", .mime = MD },
+};
+
+fn download_handler(ctx: *const Context, dir: Dir) !Respond {
+    //TODO: use db incha2Allah
+
+    const response = ctx.response;
+
+    // Resolving the requested file.
+    const file_id = ctx.captures[0].unsigned;
+    const secure_file: SecureFile = find_file: {
+        for (secure_files, 0..) |file, i| if(file.id == file_id) break :find_file secure_files[i];
+        
+        return ctx.response.apply(.{
+            .status = .@"Not Found",
+            .mime = Mime.HTML,
+        });
+    };
+
+    // const search_path = secure_file.name;
+    // Todo: change to secure_file's name
+    const file_path_z = try ctx.allocator.dupeZ(u8, secure_file.name);
+
+    const file = dir.open_file(ctx.runtime, file_path_z, .{ .mode = .read }) catch |e| switch (e) {
+        error.NotFound => {
+            return ctx.response.apply(.{
+                .status = .@"Not Found",
+                .mime = Mime.HTML,
+            });
+        },
+        else => return e,
+    };
+    const stat = try file.stat(ctx.runtime);
+
+    var hash = std.hash.Wyhash.init(0);
+    hash.update(std.mem.asBytes(&stat.size));
+    if (stat.modified) |modified| {
+        hash.update(std.mem.asBytes(&modified.seconds));
+        hash.update(std.mem.asBytes(&modified.nanos));
+    }
+    const etag_hash = hash.final();
+
+    const calc_etag = try std.fmt.allocPrint(ctx.allocator, "\"{d}\"", .{etag_hash});
+    try response.headers.put("ETag", calc_etag);
+
+    // If we have an ETag on the request...
+    if (ctx.request.headers.get("If-None-Match")) |etag| {
+        if (std.mem.eql(u8, etag, calc_etag)) {
+            // If the ETag matches.
+            return ctx.response.apply(.{
+                .status = .@"Not Modified",
+                .mime = Mime.HTML,
+            });
+        }
+    }
+
+    // apply the fields.
+    response.status = .OK;
+    response.mime = secure_file.mime;
+
+    try response.headers_into_writer(ctx.header_buffer.writer(), stat.size);
+    const headers = ctx.header_buffer.items;
+    const length = try ctx.socket.send_all(ctx.runtime, headers);
+    if (headers.len != length) return error.SendingHeadersFailed;
+
+    var buffer = ctx.header_buffer.allocatedSlice();
+    while (true) {
+        const read_count = file.read(ctx.runtime, buffer, null) catch |e| switch (e) {
+            error.EndOfFile => break,
+            else => return e,
+        };
+
+        _ = ctx.socket.send(ctx.runtime, buffer[0..read_count]) catch |e| switch (e) {
+            error.Closed => break,
+            else => return e,
+        };
+    }
+
+    return .responded; 
+}
 
 fn login_handler(ctx: *const Context, _: void) !Respond {
     const params = try std.json.parseFromSlice(Jwt, ctx.allocator, ctx.request.body orelse return error.BodyEmpty, .{.ignore_unknown_fields = true});
@@ -185,6 +277,8 @@ pub fn main() !void {
     var t = try Tardy.init(allocator, .{ .threading = .auto });
     defer t.deinit();
 
+    const secure_dir = Dir.from_std(try std.fs.openDirAbsolute("/tmp/zzz/files", .{.access_sub_paths = false, .no_follow = true}));
+
     var router = try Router.init(allocator, &.{
         Route.init("/").get({}, base_handler).layer(),
         Route.init("/dynamic/%i/%s/%r").get({}, dynamic_route_handler).layer(),
@@ -199,6 +293,7 @@ pub fn main() !void {
         // only if logged in
         Middleware.init({}, jwt_middleware).layer(),
         Route.init("/form").post({}, form_post_handler).layer(),
+        Route.init("/download/%u").get(secure_dir, download_handler).layer(),
     }, .{});
     defer router.deinit(allocator);
 
