@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>بسم الله الرحمن الرحيم</title>
+    <script defer src="./alpine.min.js" ></script>
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <h2>بسم الله الرحمن الرحيم</h2>
+    <p x-data="{ message: 'I ❤️ Alpine' }" x-text="message"></p>
+
+    <div x-data="{ count: 0 }">
+        <button x-on:click="count++">Increment</button>
+        <span x-text="count"></span>
+    </div>
+
+    <div
+        x-data="{
+            search: '',
+            items: ['foo', 'bar', 'baz'],
+            get filteredItems() {
+                return this.items.filter(
+                    i => i.startsWith(this.search)
+                )
+            }
+        }"
+    >
+        <input x-model="search" placeholder="Search...">
+        <ul>
+            <template x-for="item in filteredItems" :key="item">
+                <li x-text="item"></li>
+            </template>
+        </ul>
+    </div>
+
+</body>
+</html>
