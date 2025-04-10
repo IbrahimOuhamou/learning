@@ -28,8 +28,7 @@ const Jwt = struct {
     user_id: i32,
 };
 
-// todo: use env var
-const secret = "LaIlahaIllaAllah";
+var secret: []u8 = undefined;
 
 const SecureFile = struct {
     id: i32,
@@ -278,6 +277,11 @@ pub fn main() !void {
     defer t.deinit();
 
     const secure_dir = Dir.from_std(try std.fs.openDirAbsolute("/tmp/zzz/files", .{.access_sub_paths = false, .no_follow = true}));
+
+    secret = std.process.getEnvVarOwned(allocator, "ZZZ_SECRET") catch |err| switch (err) {
+        std.process.GetEnvVarOwnedError.EnvironmentVariableNotFound => @constCast("LaIlahaIllaAllah"),
+        else => return err,
+    };
 
     var router = try Router.init(allocator, &.{
         Route.init("/").get({}, base_handler).layer(),
