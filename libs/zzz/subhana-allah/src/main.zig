@@ -4,6 +4,7 @@ const std = @import("std");
 const log = std.log.scoped(.@"subhana-allah");
 
 const zzz = @import("zzz");
+const sqlt = @import("sqlt");
 const jwt = @import("jwt");
 const http = zzz.HTTP;
 
@@ -21,6 +22,12 @@ const Respond = http.Respond;
 const Next = http.Next;
 const Middleware = http.Middleware;
 const Mime = http.Mime;
+
+const config = @import("config");
+const Db = switch (config.database_type) {
+    .postgres => sqlt.Postgres,
+    .sqlite => sqlt.Sqlite,
+};
 
 pub const MD = Mime.generate("text/markdown; charset=utf-8", "md", "Markdown Document");
 

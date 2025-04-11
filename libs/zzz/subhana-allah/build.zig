@@ -1,4 +1,11 @@
+// بسم الله الرحمن الرحيم
+// la ilaha illa Allah Mohammed Rassoul Allah
 const std = @import("std");
+
+const DatabaseType = enum {
+    postgres,
+    sqlite,
+};
 
 // Although this function looks imperative, note that its job is to
 // declaratively construct a build graph that will be executed by an external
@@ -15,6 +22,15 @@ pub fn build(b: *std.Build) void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
+    const database_type = b.option(DatabaseType, "db_type", "Database type to be used") orelse DatabaseType.sqlite;
+
+    var sqlt_dir_name_buffer: [32]u8 = undefined;
+    const sqlt_dir_name = std.fmt.bufPrint(&sqlt_dir_name_buffer, "./src/sqlt/{s}", .{@tagName(database_type)}) catch @panic("Cound not make sqlt_dir_name");
+    const sqlt_dir = b.option([]const u8, "sqlt_dir", "Location of your sqlt folder default to './src/sqlt/{db_type}'") orelse sqlt_dir_name;
+
+    const config = b.addOptions();
+    config.addOption(DatabaseType, "database_type", database_type);
+
     const zzz = b.dependency("zzz", .{
         .target = target,
         .optimize = optimize,
@@ -24,6 +40,12 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     }).module("jwt");
+
+    const sqlt = b.dependency("sqlt", .{
+        .target = target,
+        .optimize = optimize,
+        .sqlt_dir = sqlt_dir,
+    }).module("sqlt");
 
     // We will also create a module for our other entry point, 'main.zig'.
     const exe_mod = b.createModule(.{
@@ -36,7 +58,10 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     exe_mod.addImport("zzz", zzz);
+    exe_mod.addImport("sqlt", sqlt);
     exe_mod.addImport("jwt", jwt);
+
+    exe_mod.addOptions("config", config);
 
     // This creates another `std.Build.Step.Compile`, but this one builds an executable
     // rather than a static library.
