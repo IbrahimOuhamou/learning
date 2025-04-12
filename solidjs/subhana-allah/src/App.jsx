@@ -1,3 +1,5 @@
+// بسم الله الرحمن الرحيم
+// la ilaha illa Allah Mohammed Rassoul Allah
 import logo from './logo.svg';
 import styles from './App.module.css';
 

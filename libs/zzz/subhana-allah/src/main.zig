@@ -24,7 +24,8 @@ const Middleware = http.Middleware;
 const Mime = http.Mime;
 
 const config = @import("config");
-const Db = switch (config.database_type) {
+const database_type = config.database_type;
+const Db = switch (database_type) {
     .postgres => sqlt.Postgres,
     .sqlite => sqlt.Sqlite,
 };
@@ -35,16 +36,80 @@ const Jwt = struct {
     user_id: i32,
 };
 
-var secret: []u8 = undefined;
-
 const SecureFile = struct {
     id: i32,
     name: []const u8,
-    mime: Mime,
+    extension: []const u8,
 };
-const secure_files = [_]SecureFile{
-    .{ .id = 1, .name = "BismiAllah.md", .mime = MD },
+
+/// secret of application
+var secret: []u8 = undefined;
+var conn: Db = undefined;
+
+fn getMimeIndex(find_mime: []const u8) ?u32 {
+    for (mimes, 0..) |mime, i| {
+        if(std.mem.eql(u8, find_mime, switch (mime.extension) { .single => mime.extension.single, .multiple => mime.extension.multiple[0]})) return @intCast(i);
+    }
+    return null;
+}
+
+const mimes = [_]Mime{
+    Mime.AAC,
+    Mime.APNG,
+    Mime.AVIF,
+    Mime.AVI,
+    Mime.AZW,
+    Mime.BIN,
+    Mime.BMP,
+    Mime.BZ,
+    Mime.BZ2,
+    Mime.CDA,
+    Mime.CSS,
+    Mime.CSV,
+    Mime.DOC,
+    Mime.DOCX,
+    Mime.EPUB,
+    Mime.GIF,
+    Mime.GZ,
+    Mime.HTML,
+    Mime.ICO,
+    Mime.ICS,
+    Mime.JAR,
+    Mime.JPEG,
+    Mime.JS,
+    Mime.JSON,
+    Mime.MP3,
+    Mime.MP4,
+    Mime.OGA,
+    Mime.OGV,
+    Mime.OGX,
+    Mime.OTF,
+    Mime.PDF,
+    Mime.PHP,
+    Mime.PNG,
+    Mime.RAR,
+    Mime.RTF,
+    Mime.SH,
+    Mime.SVG,
+    Mime.TAR,
+    Mime.TEXT,
+    Mime.TSV,
+    Mime.TTF,
+    Mime.WAV,
+    Mime.WEBA,
+    Mime.WEBM,
+    Mime.WEBP,
+    Mime.WOFF,
+    Mime.WOFF2,
+    Mime.XML,
+    Mime.ZIP,
+    Mime.@"7Z",
+    MD,
 };
+
+// const secure_files = [_]SecureFile{
+//     .{ .id = 1, .name = "BismiAllah.md", .mime = "md" },
+// };
 
 fn download_handler(ctx: *const Context, dir: Dir) !Respond {
     //TODO: use db incha2Allah
@@ -53,14 +118,8 @@ fn download_handler(ctx: *const Context, dir: Dir) !Respond {
 
     // Resolving the requested file.
     const file_id = ctx.captures[0].unsigned;
-    const secure_file: SecureFile = find_file: {
-        for (secure_files, 0..) |file, i| if(file.id == file_id) break :find_file secure_files[i];
-        
-        return ctx.response.apply(.{
-            .status = .@"Not Found",
-            .mime = Mime.HTML,
-        });
-    };
+
+    const secure_file: SecureFile = try conn.fetch_optional(ctx.allocator, SecureFile, "select * from secure_files where id = $1", .{ file_id }) orelse return ctx.response.apply(.{ .status = .@"Not Found", .mime = Mime.HTML });
 
     // const search_path = secure_file.name;
     // Todo: change to secure_file's name
@@ -101,7 +160,7 @@ fn download_handler(ctx: *const Context, dir: Dir) !Respond {
 
     // apply the fields.
     response.status = .OK;
-    response.mime = secure_file.mime;
+    response.mime = if(getMimeIndex(secure_file.extension)) |index| mimes[index] else Mime.BIN;
 
     try response.headers_into_writer(ctx.header_buffer.writer(), stat.size);
     const headers = ctx.header_buffer.items;
@@ -272,6 +331,29 @@ fn form_post_handler(ctx: *const Context, _: void) !Respond {
     });
 }
 
+fn db_connect(rt: *Runtime) !void {
+    std.debug.print("alhamdo li Allah axecutes after server.serve()\n", .{});
+
+    switch (database_type) {
+        .postgres => {
+            conn = try Db.connect(rt.allocator, rt, "127.0.0.1", 5432, .{ .database = "subhana-allah-zzz", .user = "postgres" });
+            try conn.execute("set log_min_messages to 'DEBUG5'", .{});
+            try conn.execute("set client_min_messages to 'DEBUG5'", .{});
+            try sqlt.migrate(rt.allocator, &conn);
+        },
+        .sqlite => {
+            // conn = try Db.open("/tmp/zzz/db.sqlite");
+            conn = try Db.open(":memory:");
+            try sqlt.migrate(rt.allocator, conn);
+        },
+    }
+
+    conn.execute("insert into secure_files values ($1, $2, $3)", .{ 1, "BismiAllah.md", MD.extension.single }) catch |err| {
+        std.debug.print("alhamdo li Allah db.error: '{any}'\n", .{err});
+        return err;
+    };
+}
+
 pub fn main() !void {
     const host: []const u8 = "0.0.0.0";
     const port: u16 = 9862;
@@ -320,6 +402,7 @@ pub fn main() !void {
 
     std.debug.print("alhamdo li Allah listening on '{s}':'{d}'\n", .{ host, port });
 
+    defer conn.close();
     try t.entry(
         EntryParams{ .router = &router, .socket = socket },
         struct {
@@ -331,6 +414,8 @@ pub fn main() !void {
                     .connection_count_max = 1024,
                 });
                 try server.serve(rt, p.router, .{ .normal = p.socket });
+
+                try rt.spawn(.{rt}, db_connect, 1024 * 1024 * 4);
             }
         }.entry,
     );
